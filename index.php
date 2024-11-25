@@ -91,6 +91,8 @@ $pid = $_GET['pid'];
             $(".autocomplete-start").hide();
             if(option == "old_var") {
                 $("#new_name_input").hide();
+            }else{
+                $("#new-name-validation-btn").prop("disabled",false);
             }
             $("#warning-new-name-exists").hide();
 
@@ -123,6 +125,7 @@ $pid = $_GET['pid'];
                         lists += "<a onclick='addDataToInput(\"" + data.value + "\")'>" + data.label + "</a></div>";
                     }else if(option == "new_var"){
                         $("#warning-new-name-exists").show();
+                        $("#new-name-validation-btn").prop("disabled",true);
                     }
                 });
                 if(option == "old_var") {
@@ -158,9 +161,9 @@ $pid = $_GET['pid'];
     <div style="display:none; padding-top:40px" id="new_name_input">
         Add the new Variable/Instrument Name:
         <input type="text" class="x-form-text x-form-field new-name-validation-input">
-        <div id="warning-new-name-exists">*This Variable/Instrument already exists. Please change the name for a different one.</div>
+        <button type="button" class="btn btn-primary btn-xs" disabled id="new-name-validation-btn">Confirm</button>
+        <div id="warning-new-name-exists" style="display:none;">*This Variable/Instrument already exists. Please change the name for a different one.</div>
     </div>
-<!--<button type="button" class="btn btn-primary float-left btnClassConfirm" id="add_user" style="margin-right:10px">Confirm</button>-->
 </body>
 </html>
 
