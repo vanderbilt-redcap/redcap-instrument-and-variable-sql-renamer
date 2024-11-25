@@ -4,6 +4,7 @@ include_once(__DIR__ . "/classes/Autocomplete.php");
 
 $pid = $_REQUEST['pid'];
 $type = $_REQUEST['type'];
-$users = Autocomplete::getAutocompleteData($module, $pid, $_REQUEST['term'], $type);
-echo $users;
+$option = $_REQUEST['option'];
+$data = Autocomplete::getAutocompleteData($module, $pid, $_REQUEST['term'], $type, $option);
+echo $data;
 ?>

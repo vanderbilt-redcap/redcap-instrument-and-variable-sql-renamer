@@ -23,7 +23,7 @@ $pid = $_GET['pid'];
 
             $('.autocomplete-input').keyup(function(){
                 let term = $(this).val();
-                getAutocompleteData(term);
+                getAutocompleteData(term,"old_var");
                 if(term === ""){
                     $("#new_name_input").hide();
                 }else{
@@ -33,7 +33,7 @@ $pid = $_GET['pid'];
 
             $('[name=data_type]').change(function() {
                 if ($("#input-data").val() !== "") {
-                    getAutocompleteData($("#input-data").val());
+                    getAutocompleteData($("#input-data").val(),"old_var");
                     $("#new_name_input").show();
                 }else{
                     $("#new_name_input").hide();
@@ -65,18 +65,7 @@ $pid = $_GET['pid'];
 
             $('.new-name-validation-input').keyup(function(){
                 let term = $(this).val();
-                let pid = "<?=$pid?>";
-                $.ajax({
-                    method: "POST",
-                    url: <?=json_encode($module->getUrl('checkNewName.php'))?>,
-                    dataType: "json",
-                    data: {
-                        term: term,
-                        pid: pid
-                    }
-                }).done(function(response) {
-
-                });
+                getAutocompleteData(term,"new_var");
             });
         });
 
@@ -95,12 +84,16 @@ $pid = $_GET['pid'];
             });
         }
 
-        function getAutocompleteData(term){
-            // let term = $(this).val();
+        function getAutocompleteData(term, option){
             let pid = "<?=$pid?>";
             let type = $('input[name="data_type"]:checked').attr('id');
+
             $(".autocomplete-start").hide();
-            $("#new_name_input").hide();
+            if(option == "old_var") {
+                $("#new_name_input").hide();
+            }
+            $("#warning-new-name-exists").hide();
+
             $.ajax({
                 method: "POST",
                 url: <?=json_encode($module->getUrl('getAutocompleteData.php'))?>,
@@ -108,24 +101,33 @@ $pid = $_GET['pid'];
                 data: {
                     term: term,
                     type: type,
+                    option: option,
                     pid: pid
                 }
             }).done(function(response) {
-                $(".autocomplete-search").show();
+                if(option == "old_var") {
+                    $(".autocomplete-search").show();
+                }
                 let lists = '';
                 let aux = '';
                 $.each(response, function(key, data) {
-                    if(type == "variable" && aux != data.group){
-                        aux = data.group;
-                        lists += "<div class='group-header'>"+data.group+"</div>";
+                    if(option == "old_var") {
+                        if (type == "variable" && aux != data.group) {
+                            aux = data.group;
+                            lists += "<div class='group-header'>" + data.group + "</div>";
+                        }
+                        lists += "<div style='display: block'>";
+                        if (type == "variable") {
+                            lists += "<a tabindex='0' role='button' class='info-toggle' data-html='true' data-container='body' data-toggle='tooltip' data-trigger='hover' data-placement='right' style='outline: none;' title='" + data.info + "'><i class='fas fa-info-circle fa-fw' style='color:#0d6efd' aria-hidden='true'></i></a> ";
+                        }
+                        lists += "<a onclick='addDataToInput(\"" + data.value + "\")'>" + data.label + "</a></div>";
+                    }else if(option == "new_var"){
+                        $("#warning-new-name-exists").show();
                     }
-                    lists += "<div style='display: block'>";
-                    if(type == "variable"){
-                        lists += "<a tabindex='0' role='button' class='info-toggle' data-html='true' data-container='body' data-toggle='tooltip' data-trigger='hover' data-placement='right' style='outline: none;' title='"+data.info+"'><i class='fas fa-info-circle fa-fw' style='color:#0d6efd' aria-hidden='true'></i></a> ";
-                    }
-                    lists += "<a onclick='addDataToInput(\"" + data.value + "\")'>"+data.label+"</a></div>";
                 });
-                $(".autocomplete-search").html(lists);
+                if(option == "old_var") {
+                    $(".autocomplete-search").html(lists);
+                }
             });
         }
     </script>
@@ -156,6 +158,7 @@ $pid = $_GET['pid'];
     <div style="display:none; padding-top:40px" id="new_name_input">
         Add the new Variable/Instrument Name:
         <input type="text" class="x-form-text x-form-field new-name-validation-input">
+        <div id="warning-new-name-exists">*This Variable/Instrument already exists. Please change the name for a different one.</div>
     </div>
 <!--<button type="button" class="btn btn-primary float-left btnClassConfirm" id="add_user" style="margin-right:10px">Confirm</button>-->
 </body>

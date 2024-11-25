@@ -33,7 +33,7 @@ class Autocomplete
         return $result;
     }
 
-    public static function getAutocompleteData($module, $pid, $getTerm, $type){
+    public static function getAutocompleteData($module, $pid, $getTerm, $type, $option){
         // Santize search term passed in query string
         $search_term = trim(html_entity_decode(urldecode($getTerm), ENT_QUOTES));
 
@@ -67,8 +67,13 @@ class Autocomplete
             if ($this_term == '') {
                 unset($search_terms[$key]);
             } else {
-                $subsqla[] = $subtype." like ?";
-                $subvalue[] = "%".$this_term."%";
+                if($option == "new_var"){
+                    $subsqla[] = $subtype." = ?";
+                    $subvalue[] = $this_term;
+                }else{
+                    $subsqla[] = $subtype." like ?";
+                    $subvalue[] = "%".$this_term."%";
+                }
             }
         }
 
@@ -77,7 +82,7 @@ class Autocomplete
 					FROM redcap_metadata 
 					WHERE project_id = ? AND ($subsql)";
 
-		 if($type == "variable"){
+        if($type == "variable"){
             $sql .= " AND element_type IN ('select','radio','checkbox','yesno','truefalse')";
         }
         $sql .= " ORDER BY form_name";
@@ -126,5 +131,9 @@ class Autocomplete
             }
         }
         return json_encode($users);
+    }
+
+    public static function checkNewName($module, $pid, $getTerm){
+
     }
 }
