@@ -58,7 +58,11 @@ $pid = $_GET['pid'];
                     $(".autocomplete-search").show();
                     var lists = '';
                     $.each(response, function(key, data) {
-                        lists += "<div style='display: block'><a tabindex='0' role='button' class='info-toggle' data-html='true' data-container='body' data-toggle='tooltip' data-trigger='hover' data-placement='right' style='outline: none;' title='"+data.info+"'><i class='fas fa-info-circle fa-fw' style='color:#0d6efd' aria-hidden='true'></i></a> <a onclick='addDataToInput(\"" + data.value + "\")'>"+data.label+"</a></div>";
+                        lists += "<div style='display: block'>";
+                        if(type == "variable"){
+                            lists += "<a tabindex='0' role='button' class='info-toggle' data-html='true' data-container='body' data-toggle='tooltip' data-trigger='hover' data-placement='right' style='outline: none;' title='"+data.info+"'><i class='fas fa-info-circle fa-fw' style='color:#0d6efd' aria-hidden='true'></i></a> ";
+                        }
+                        lists += "<a onclick='addDataToInput(\"" + data.value + "\")'>"+data.label+"</a></div>";
                     });
                     $(".autocomplete-search").html(lists);
                 });
@@ -112,29 +116,10 @@ $pid = $_GET['pid'];
                 <input type="text" autocomplete="input" class="x-form-text x-form-field autocomplete-input" id="input-variable" style="width: 250px;">
                 <button autocomplete="button" listopen="0" tabindex="-1" onclick="" class="autocomplete-input ui-button ui-widget ui-state-default ui-corner-right rc-autocomplete" aria-label="Click to view choices"><img class="rc-autocomplete" src="/redcap_v14.8.2/Resources/images/arrow_state_grey_expanded.png" alt="Click to view choices"></button>
                 <div id="select-variable" class="autocomplete-start autocomplete-items" style="display:none">
-                        <?php
-                        $sql = "SELECT field_name,element_label
-					FROM redcap_metadata
-					WHERE project_id = ?
-					 AND element_type IN ('select','radio','checkbox','yesno','truefalse')
-					ORDER BY field_order";
-                        $result = $module->query($sql, [$pid]);
-                        while ($row = $result->fetch_assoc()) {
-                            echo "<div><a tabindex='0' role='button' class='info-toggle' data-html='true' data-container='body' data-toggle='tooltip' data-trigger='hover' data-placement='right' style='outline: none;' title='".htmlspecialchars($row['element_label'])."'><i class='fas fa-info-circle fa-fw' style='color:#0d6efd' aria-hidden='true'></i></a> <a onclick='addDataToInput(\"" .$row['field_name']. "\")'>".$row['field_name']."</a></div>";
-                        }
-                        ?>
+                        <?php echo $module->printVariableList($pid); ?>
                 </div>
                 <div id="select-instrument" class="autocomplete-start autocomplete-items" style="display:none">
-                        <?php
-                        $sql = "SELECT DISTINCT form_name
-					FROM redcap_metadata
-					WHERE project_id = ?
-					ORDER BY field_order";
-                        $result = $module->query($sql, [$pid]);
-                        while ($row = $result->fetch_assoc()) {
-                            echo "<div><a onclick='addDataToInput(\"" .$row['form_name']. "\")'>".$row['form_name']."</a></div>";
-                        }
-                        ?>
+                    <?php echo $module->printInstrumentList($pid); ?>
                 </div>
                 <div class="autocomplete-search autocomplete-items" style="display:none"></div>
             </div>
