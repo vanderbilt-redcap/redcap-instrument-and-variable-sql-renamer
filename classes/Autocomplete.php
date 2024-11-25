@@ -56,7 +56,7 @@ class Autocomplete
         $subvalue = [];
         $subvalue[] = $pid;
         $subtype = "field_name";
-        $sqlparams = ",element_label";
+        $sqlparams = ",form_name,element_label";
         if($type == "instrument"){
             $subtype = "form_name";
             $sqlparams = "";
@@ -80,15 +80,17 @@ class Autocomplete
 		 if($type == "variable"){
             $sql .= " AND element_type IN ('select','radio','checkbox','yesno','truefalse')";
         }
-        $sql .= " ORDER BY field_order";
+        $sql .= " ORDER BY form_name";
 
         $q = $module->query($sql, $subvalue);
         while($row = $q->fetch_assoc()){
             // Trim all, just in case
             $label = trim(strtolower($row[$subtype]));
             $info = "";
+            $group = "";
             if($type == "variable"){
                 $info = htmlspecialchars(trim($row['element_label']));
+                $group = \REDCap::getInstrumentNames(trim(strtolower($row['form_name'])));
             }
             // Calculate search match score.
             $userMatchScore[$key] = 0;
@@ -104,7 +106,7 @@ class Autocomplete
             $label = self::searchTerms($search_terms, $label);
 
             // Add to arrays
-            $users[$key] = array('value'=>$row[$subtype], 'label'=>$label, 'info'=> $info);
+            $users[$key] = array('value'=>$row[$subtype], 'label'=>$label, 'info'=>$info, 'group'=>$group);
             $usernamesOnly[$key] = $row['username'];
             // If username, first name, or last name match EXACTLY, do a +100 on score.
             if (in_array($row[$subtype], $search_terms)) $userMatchScore[$key] = $userMatchScore[$key]+100;

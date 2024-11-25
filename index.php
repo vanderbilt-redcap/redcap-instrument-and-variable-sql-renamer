@@ -56,8 +56,13 @@ $pid = $_GET['pid'];
                     }
                 }).done(function(response) {
                     $(".autocomplete-search").show();
-                    var lists = '';
+                    let lists = '';
+                    let aux = '';
                     $.each(response, function(key, data) {
+                        if(type == "variable" && aux != data.group){
+                            aux = data.group;
+                            lists += "<div class='group-header'>"+data.group+"</div>";
+                        }
                         lists += "<div style='display: block'>";
                         if(type == "variable"){
                             lists += "<a tabindex='0' role='button' class='info-toggle' data-html='true' data-container='body' data-toggle='tooltip' data-trigger='hover' data-placement='right' style='outline: none;' title='"+data.info+"'><i class='fas fa-info-circle fa-fw' style='color:#0d6efd' aria-hidden='true'></i></a> ";
