@@ -42,35 +42,14 @@ $pid = $_GET['pid'];
 
             $('.autocomplete-input').keyup(function(){
                 let term = $(this).val();
-                let pid = "<?=$pid?>";
-                let type = $('input[name="data_type"]:checked').attr('id');
-                $(".autocomplete-start").hide();
-                $.ajax({
-                    method: "POST",
-                    url: <?=json_encode($module->getUrl('getAutocompleteData.php'))?>,
-                    dataType: "json",
-                    data: {
-                        term: term,
-                        type: type,
-                        pid: pid
-                    }
-                }).done(function(response) {
-                    $(".autocomplete-search").show();
-                    let lists = '';
-                    let aux = '';
-                    $.each(response, function(key, data) {
-                        if(type == "variable" && aux != data.group){
-                            aux = data.group;
-                            lists += "<div class='group-header'>"+data.group+"</div>";
-                        }
-                        lists += "<div style='display: block'>";
-                        if(type == "variable"){
-                            lists += "<a tabindex='0' role='button' class='info-toggle' data-html='true' data-container='body' data-toggle='tooltip' data-trigger='hover' data-placement='right' style='outline: none;' title='"+data.info+"'><i class='fas fa-info-circle fa-fw' style='color:#0d6efd' aria-hidden='true'></i></a> ";
-                        }
-                        lists += "<a onclick='addDataToInput(\"" + data.value + "\")'>"+data.label+"</a></div>";
-                    });
-                    $(".autocomplete-search").html(lists);
-                });
+                getAutocompleteData(term);
+            });
+
+            $('[name=data_type]').change(function() {
+                if ($("#input-data").val() !== "") {
+                    getAutocompleteData($("#input-data").val());
+                }
+
             });
 
             $(document).mouseup(function(e)
@@ -107,6 +86,39 @@ $pid = $_GET['pid'];
                 }
             });
         }
+
+        function getAutocompleteData(term){
+            // let term = $(this).val();
+            let pid = "<?=$pid?>";
+            let type = $('input[name="data_type"]:checked').attr('id');
+            $(".autocomplete-start").hide();
+            $.ajax({
+                method: "POST",
+                url: <?=json_encode($module->getUrl('getAutocompleteData.php'))?>,
+                dataType: "json",
+                data: {
+                    term: term,
+                    type: type,
+                    pid: pid
+                }
+            }).done(function(response) {
+                $(".autocomplete-search").show();
+                let lists = '';
+                let aux = '';
+                $.each(response, function(key, data) {
+                    if(type == "variable" && aux != data.group){
+                        aux = data.group;
+                        lists += "<div class='group-header'>"+data.group+"</div>";
+                    }
+                    lists += "<div style='display: block'>";
+                    if(type == "variable"){
+                        lists += "<a tabindex='0' role='button' class='info-toggle' data-html='true' data-container='body' data-toggle='tooltip' data-trigger='hover' data-placement='right' style='outline: none;' title='"+data.info+"'><i class='fas fa-info-circle fa-fw' style='color:#0d6efd' aria-hidden='true'></i></a> ";
+                    }
+                    lists += "<a onclick='addDataToInput(\"" + data.value + "\")'>"+data.label+"</a></div>";
+                });
+                $(".autocomplete-search").html(lists);
+            });
+        }
     </script>
 </head>
 <body>
@@ -118,7 +130,7 @@ $pid = $_GET['pid'];
         </div>
         <div>
             <div class="autocomplete-wrap">
-                <input type="text" autocomplete="input" class="x-form-text x-form-field autocomplete-input" id="input-variable" style="width: 250px;">
+                <input type="text" autocomplete="input" class="x-form-text x-form-field autocomplete-input" id="input-data" style="width: 250px;">
                 <button autocomplete="button" listopen="0" tabindex="-1" onclick="" class="autocomplete-input ui-button ui-widget ui-state-default ui-corner-right rc-autocomplete" aria-label="Click to view choices"><img class="rc-autocomplete" src="/redcap_v14.8.2/Resources/images/arrow_state_grey_expanded.png" alt="Click to view choices"></button>
                 <div id="select-variable" class="autocomplete-start autocomplete-items" style="display:none">
                         <?php echo $module->printVariableList($pid); ?>
