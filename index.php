@@ -21,35 +21,23 @@ $pid = $_GET['pid'];
                 $('[data-toggle="tooltip"]').tooltip()
             });
 
-            $('#select_variable').keyup(function(){
-                let term = $(this).val();
-                $.ajax({
-                    method: "POST",
-                    url: <?=json_encode($module->getUrl('hub-user-management/getUserInfoAutocomplete_AJAX.php'))?>,
-                    dataType: "json",
-                    data: {
-                        term: term
-                    }
-                }).done(function(response) {
-                    $("#user-list").show();
-                    var lists = '';
-                    $.each(response, function(key, user) {
-                        lists += "<div class='autocomplete-items' onclick='addUserName(\"" + user.value + "\")'><a onclick='addUserName(\"" + user.value + "\")'>" +  user.label + "</a></div>";
-                    });
-                    $("#user-list").html(lists);
-                });
-            });
-
             $('.autocomplete-input').keyup(function(){
                 let term = $(this).val();
                 getAutocompleteData(term);
+                if(term === ""){
+                    $("#new_name_input").hide();
+                }else{
+                    $("#new_name_input").show();
+                }
             });
 
             $('[name=data_type]').change(function() {
                 if ($("#input-data").val() !== "") {
                     getAutocompleteData($("#input-data").val());
+                    $("#new_name_input").show();
+                }else{
+                    $("#new_name_input").hide();
                 }
-
             });
 
             $(document).mouseup(function(e)
@@ -61,6 +49,9 @@ $pid = $_GET['pid'];
                 {
                     container.hide();
                 }
+                if($("#input-data").val() === ""){
+                    $("#new_name_input").hide();
+                }
             });
 
             $('input, button').on( "click", function(e) {
@@ -70,6 +61,22 @@ $pid = $_GET['pid'];
                     let type = $('input[name="data_type"]:checked').attr('id');
                     $("#select-"+type).show();
                 }
+            });
+
+            $('.new-name-validation-input').keyup(function(){
+                let term = $(this).val();
+                let pid = "<?=$pid?>";
+                $.ajax({
+                    method: "POST",
+                    url: <?=json_encode($module->getUrl('checkNewName.php'))?>,
+                    dataType: "json",
+                    data: {
+                        term: term,
+                        pid: pid
+                    }
+                }).done(function(response) {
+
+                });
             });
         });
 
@@ -83,6 +90,7 @@ $pid = $_GET['pid'];
                 if ($(element).is(":visible")) {
                     $(element).val(value);
                     $(".autocomplete-items").hide();
+                    $("#new_name_input").show();
                 }
             });
         }
@@ -92,6 +100,7 @@ $pid = $_GET['pid'];
             let pid = "<?=$pid?>";
             let type = $('input[name="data_type"]:checked').attr('id');
             $(".autocomplete-start").hide();
+            $("#new_name_input").hide();
             $.ajax({
                 method: "POST",
                 url: <?=json_encode($module->getUrl('getAutocompleteData.php'))?>,
@@ -123,25 +132,32 @@ $pid = $_GET['pid'];
 </head>
 <body>
     <div class="title" style="padding-top:15px">
-        Select the type of data you want to rename.
-        <div style="padding-top:15px;padding-bottom: 15px;">
-            <input type="radio" name="data_type" id="variable" onclick="showData(this.id)" checked> Variable
-            <input type="radio" name="data_type" id="instrument" style="margin-left: 25px" onclick="showData(this.id)"> Instrument
-        </div>
         <div>
-            <div class="autocomplete-wrap">
-                <input type="text" autocomplete="input" class="x-form-text x-form-field autocomplete-input" id="input-data" style="width: 250px;">
-                <button autocomplete="button" listopen="0" tabindex="-1" onclick="" class="autocomplete-input ui-button ui-widget ui-state-default ui-corner-right rc-autocomplete" aria-label="Click to view choices"><img class="rc-autocomplete" src="/redcap_v14.8.2/Resources/images/arrow_state_grey_expanded.png" alt="Click to view choices"></button>
-                <div id="select-variable" class="autocomplete-start autocomplete-items" style="display:none">
-                        <?php echo $module->printVariableList($pid); ?>
+            Select the type of data you want to rename.
+            <div style="padding-top:15px;padding-bottom: 15px;">
+                <input type="radio" name="data_type" id="variable" onclick="showData(this.id)" checked> Variable
+                <input type="radio" name="data_type" id="instrument" style="margin-left: 25px" onclick="showData(this.id)"> Instrument
+            </div>
+            <div>
+                <div class="autocomplete-wrap">
+                    <input type="text" autocomplete="input" class="x-form-text x-form-field autocomplete-input" id="input-data" style="width: 250px;">
+                    <button autocomplete="button" listopen="0" tabindex="-1" onclick="" class="autocomplete-input ui-button ui-widget ui-state-default ui-corner-right rc-autocomplete" aria-label="Click to view choices"><img class="rc-autocomplete" src="/redcap_v14.8.2/Resources/images/arrow_state_grey_expanded.png" alt="Click to view choices"></button>
+                    <div id="select-variable" class="autocomplete-start autocomplete-items" style="display:none">
+                            <?php echo $module->printVariableList($pid); ?>
+                    </div>
+                    <div id="select-instrument" class="autocomplete-start autocomplete-items" style="display:none">
+                        <?php echo $module->printInstrumentList($pid); ?>
+                    </div>
+                    <div class="autocomplete-search autocomplete-items" style="display:none"></div>
                 </div>
-                <div id="select-instrument" class="autocomplete-start autocomplete-items" style="display:none">
-                    <?php echo $module->printInstrumentList($pid); ?>
-                </div>
-                <div class="autocomplete-search autocomplete-items" style="display:none"></div>
             </div>
         </div>
     </div>
+    <div style="display:none; padding-top:40px" id="new_name_input">
+        Add the new Variable/Instrument Name:
+        <input type="text" class="x-form-text x-form-field new-name-validation-input">
+    </div>
+<!--<button type="button" class="btn btn-primary float-left btnClassConfirm" id="add_user" style="margin-right:10px">Confirm</button>-->
 </body>
 </html>
 
