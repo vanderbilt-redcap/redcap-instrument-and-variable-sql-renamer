@@ -19,7 +19,7 @@
         "name": "SQL Renamer",
         "icon": "fas fa-database",
         "url": "index.php",
-        "target": "_blank"
+        "show-header-and-footer": true
       }
     ]
   },
@@ -36,9 +36,9 @@
   ],
 
   "compatibility": {
-    "php-version-min": "7.3.29",
+    "php-version-min": "8.0.0",
     "php-version-max": "",
-    "redcap-version-min": "14.5.25",
+    "redcap-version-min": "14.8.2",
     "redcap-version-max": ""
   }
 }
