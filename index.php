@@ -26,15 +26,12 @@ $pid = $_GET['pid'];
                 getAutocompleteData(term,"old_var");
                 if(term === ""){
                     $("#new_name_input").hide();
-                }else{
-                    $("#new_name_input").show();
                 }
             });
 
             $('[name=data_type]').change(function() {
-                if ($("#input-data").val() !== "") {
-                    getAutocompleteData($("#input-data").val(),"old_var");
-                    $("#new_name_input").show();
+                if ($("#input-data-old").val() !== "") {
+                    getAutocompleteData($("#input-data-old").val(),"old_var");
                 }else{
                     $("#new_name_input").hide();
                 }
@@ -49,7 +46,7 @@ $pid = $_GET['pid'];
                 {
                     container.hide();
                 }
-                if($("#input-data").val() === ""){
+                if($("#input-data-old").val() === ""){
                     $("#new_name_input").hide();
                 }
             });
@@ -67,6 +64,36 @@ $pid = $_GET['pid'];
                 let term = $(this).val();
                 getAutocompleteData(term,"new_var");
             });
+
+            $('#save_data').submit(function (event) {
+                let pid = "<?=$pid?>";
+                let type = $('input[name="data_type"]:checked').attr('id');
+                let old_var = $('#input-data-old').val();
+                let new_var = $('#input-data-new').val();
+                if(type == "instrument"){
+                    console.log("....change")
+                    console.log(new_var.replace(/^\s+|\s+$/g,''))
+                    new_var = new_var.replace(/^\s+|\s+$/g,'')
+                }
+                console.log("pid: "+pid)
+                console.log("type: "+type)
+                console.log("old_var: "+old_var)
+                console.log("new_var: "+new_var)
+                return false;
+                //$.ajax({
+                //    method: "POST",
+                //    url: <?//=json_encode($module->getUrl('saveData.php'))?>//,
+                //    dataType: "json",
+                //    data: {
+                //        pid: pid,
+                //        type: type,
+                //        old_var: old_var,
+                //        new_var: new_var
+                //    }
+                //}).done(function(response) {
+                //
+                //});
+            });
         });
 
         function showData(id){
@@ -80,6 +107,7 @@ $pid = $_GET['pid'];
                     $(element).val(value);
                     $(".autocomplete-items").hide();
                     $("#new_name_input").show();
+                    $(".new-name-validation-input").removeClass('danger-input');
                 }
             });
         }
@@ -87,12 +115,13 @@ $pid = $_GET['pid'];
         function getAutocompleteData(term, option){
             let pid = "<?=$pid?>";
             let type = $('input[name="data_type"]:checked').attr('id');
+            let new_var_found = false;
 
             $(".autocomplete-start").hide();
             if(option == "old_var") {
                 $("#new_name_input").hide();
             }else{
-                $("#new-name-validation-btn").prop("disabled",false);
+                $("#new-name-confirm-btn").prop("disabled",false);
             }
             $("#warning-new-name-exists").hide();
 
@@ -124,18 +153,27 @@ $pid = $_GET['pid'];
                         }
                         lists += "<a onclick='addDataToInput(\"" + data.value + "\")'>" + data.label + "</a></div>";
                     }else if(option == "new_var"){
+                        new_var_found = true;
                         $("#warning-new-name-exists").show();
-                        $("#new-name-validation-btn").prop("disabled",true);
+                        $(".new-name-validation-input").addClass('danger-input');
+                        $("#new-name-confirm-btn").prop("disabled",true);
                     }
                 });
                 if(option == "old_var") {
+                    $("#new_name_input").show();
                     $(".autocomplete-search").html(lists);
                 }
             });
+            if(!new_var_found){
+                $(".new-name-validation-input").removeClass('danger-input');
+            }
         }
     </script>
 </head>
 <body>
+    <div class="container" style="display:none;margin-top: 20px">
+        <div class="alert alert-success col-md-12" id="success_message"></div>
+    </div>
     <div class="title" style="padding-top:15px">
         <div>
             Select the type of data you want to rename.
@@ -145,7 +183,7 @@ $pid = $_GET['pid'];
             </div>
             <div>
                 <div class="autocomplete-wrap">
-                    <input type="text" autocomplete="input" class="x-form-text x-form-field autocomplete-input" id="input-data" style="width: 250px;">
+                    <input type="text" autocomplete="input" class="x-form-text x-form-field autocomplete-input" id="input-data-old" style="width: 250px;">
                     <button autocomplete="button" listopen="0" tabindex="-1" onclick="" class="autocomplete-input ui-button ui-widget ui-state-default ui-corner-right rc-autocomplete" aria-label="Click to view choices"><img class="rc-autocomplete" src="/redcap_v14.8.2/Resources/images/arrow_state_grey_expanded.png" alt="Click to view choices"></button>
                     <div id="select-variable" class="autocomplete-start autocomplete-items" style="display:none">
                             <?php echo $module->printVariableList($pid); ?>
@@ -159,9 +197,11 @@ $pid = $_GET['pid'];
         </div>
     </div>
     <div style="display:none; padding-top:40px" id="new_name_input">
-        Add the new Variable/Instrument Name:
-        <input type="text" class="x-form-text x-form-field new-name-validation-input">
-        <button type="button" class="btn btn-primary btn-xs" disabled id="new-name-validation-btn">Confirm</button>
+        <label>Add the new Variable/Instrument Name:</label>
+        <input type="text" id="input-data-new" class="x-form-text x-form-field new-name-validation-input">
+        <form method="POST" action="" id="save_data" style="display: inline">
+            <button type="submit" class="btn btn-primary btn-xs" disabled id="new-name-confirm-btn">Confirm</button>
+        </form>
         <div id="warning-new-name-exists" style="display:none;">*This Variable/Instrument already exists. Please change the name for a different one.</div>
     </div>
 </body>

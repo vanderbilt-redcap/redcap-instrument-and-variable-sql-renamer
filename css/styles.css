@@ -32,3 +32,6 @@
     color: red;
     font-style: italic;
 }
+.danger-input{
+    background-color: rgb(244 167 167);
+}
