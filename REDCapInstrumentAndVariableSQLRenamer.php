@@ -46,7 +46,7 @@ class REDCapInstrumentAndVariableSQLRenamer extends AbstractExternalModule
         $result = $this->query($sql, [$pid]);
         $list_html = "";
         while ($row = $result->fetch_assoc()) {
-            $list_html.= "<div><a onclick='addDataToInput(\"" .$row['form_name']. "\")'>".$row['form_name']."</a></div>";
+            $list_html.= "<div><a onclick='addDataToInput(\"" .$row['form_name']. "\")'>".\REDCap::getInstrumentNames($row['form_name'])." <em>(".$row['form_name'].")</em></a></div>";
         }
         return $list_html;
     }

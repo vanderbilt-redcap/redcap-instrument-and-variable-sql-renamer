@@ -70,29 +70,22 @@ $pid = $_GET['pid'];
                 let type = $('input[name="data_type"]:checked').attr('id');
                 let old_var = $('#input-data-old').val();
                 let new_var = $('#input-data-new').val();
-                if(type == "instrument"){
-                    console.log("....change")
-                    console.log(new_var.replace(/^\s+|\s+$/g,''))
-                    new_var = new_var.replace(/^\s+|\s+$/g,'')
-                }
-                console.log("pid: "+pid)
-                console.log("type: "+type)
-                console.log("old_var: "+old_var)
-                console.log("new_var: "+new_var)
+
+                $.ajax({
+                    method: "POST",
+                    url: <?=json_encode($module->getUrl('saveData.php'))?>,
+                    dataType: "json",
+                    data: {
+                        pid: pid,
+                        type: type,
+                        old_var: old_var,
+                        new_var: new_var
+                    }
+                }).done(function(response) {
+                    $("#"+response.status).html(response.message)
+                    $("#"+response.status).show();
+                });
                 return false;
-                //$.ajax({
-                //    method: "POST",
-                //    url: <?//=json_encode($module->getUrl('saveData.php'))?>//,
-                //    dataType: "json",
-                //    data: {
-                //        pid: pid,
-                //        type: type,
-                //        old_var: old_var,
-                //        new_var: new_var
-                //    }
-                //}).done(function(response) {
-                //
-                //});
             });
         });
 
@@ -117,6 +110,8 @@ $pid = $_GET['pid'];
             let type = $('input[name="data_type"]:checked').attr('id');
             let new_var_found = false;
 
+            $("#success_message").hide();
+            $("#warning_message").hide();
             $(".autocomplete-start").hide();
             if(option == "old_var") {
                 $("#new_name_input").hide();
@@ -171,9 +166,8 @@ $pid = $_GET['pid'];
     </script>
 </head>
 <body>
-    <div class="container" style="display:none;margin-top: 20px">
-        <div class="alert alert-success col-md-12" id="success_message"></div>
-    </div>
+    <div class="alert alert-success col-md-12" style="display:none;margin-top: 20px" id="success_message"></div>
+    <div class="alert alert-danger col-md-12" style="display:none;margin-top: 20px" id="warning_message"></div>
     <div class="title" style="padding-top:15px">
         <div>
             Select the type of data you want to rename.

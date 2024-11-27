@@ -104,6 +104,8 @@ class Autocomplete
                 if ($type == "variable") {
                     $info = htmlspecialchars(trim($row['element_label']));
                     $group = \REDCap::getInstrumentNames(trim(strtolower($row['form_name'])));
+                }else{
+                    $label = \REDCap::getInstrumentNames(trim(strtolower($row[$subtype])));
                 }
                 // Calculate search match score.
                 $userMatchScore[$key] = 0;

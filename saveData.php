@@ -34,9 +34,18 @@ try{
 //        }
 //    }
 //    $module->query("COMMIT");
-    echo json_encode("The ".ucfirst($type)." <em>$old_var</em> has been updated to <strong>$new_var</strong> successfully.");
+
+    $message = "The ".ucfirst($type)." <em>$old_var</em> has been updated to <strong>$new_var</strong> successfully.";
+    $status = "success_message";
 }catch(Exception $e) {
     $module->query("ROLLBACK");
+    $message = "Something went wrong when updating the ".ucfirst($type)." <em>$old_var</em> to <strong>$new_var</strong>";
+    $status = "warning_message";
     throw $e;
 }
+
+echo json_encode(array(
+    'status' => $status,
+    'message' => $message
+));
 ?>
