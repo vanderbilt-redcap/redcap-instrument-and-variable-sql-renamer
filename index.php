@@ -6,6 +6,7 @@ if(!array_key_exists("U",$_REQUEST) && $_REQUEST['message'] != "U") {
     $_SESSION['message'] = "";
     $_SESSION['message_type'] = "";
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">

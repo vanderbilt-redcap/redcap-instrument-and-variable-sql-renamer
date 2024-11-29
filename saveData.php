@@ -7,16 +7,17 @@ $new_var = $_REQUEST['new_var'];
 $old_var = $_REQUEST['old_var'];
 $var_name = ($type == "instrument") ? "form_name":"field_name";
 $old_var_data = ($type == "instrument") ? $old_var."_complete":$old_var;
+
 try{
     error_log(".......saveData");
-//    $module->query("START TRANSACTION");
-//    error_log("START TRANSACTION");
+    $module->query("START TRANSACTION",[]);
+    error_log("START TRANSACTION");
     #Updating: Data/Form_complete Data
     $module->query("UPDATE redcap_data SET ".$var_name." = ? WHERE project_id = ? AND ".$var_name." = ?",[$new_var, $pid, $old_var_data]);
     for($i=2; $i < 7; $i++){
         error_log("redcap_data".$i);
         $qEvent = $module->query("UPDATE redcap_data".$i." SET ".$var_name." = ? WHERE project_id = ? AND ".$var_name." = ?",[$new_var, $pid, $old_var_data]);
-        if(db_affected_rows() >0){
+        if(db_affected_rows() > 0){
             //write logs
         }
     }
@@ -41,13 +42,13 @@ try{
 //            $module->query("UPDATE redcap_events_forms SET form_name = ? WHERE event_id = ? AND form_name = ?",[$new_var, $row['event_id'], $old_var]);
 //        }
     }
-//    $module->query("COMMIT");
+    $module->query("COMMIT",[]);
 
     $_SESSION['message'] = ucfirst($type)." <strong>$old_var</strong> has been updated to <strong>$new_var</strong> successfully.";
     $_SESSION['message_type'] = "success";
     $status = "success_message";
 }catch(Exception $e) {
-    $module->query("ROLLBACK");
+    $module->query("ROLLBACK",[]);
     $_SESSION['message'] = "Something went wrong when updating the ".ucfirst($type)." <em>$old_var</em> to <strong>$new_var</strong>";
     $_SESSION['message_type'] = "warning_message";
     throw $e;
