@@ -58,6 +58,7 @@ class Autocomplete
             $subtype = "form_name";
             $sqlparams = "";
         }
+
         if($option == "new_var") {
             $subsqla[] = $subtype . " = ?";
             $subvalue[] = $search_term;
@@ -85,18 +86,13 @@ class Autocomplete
         $subsql = implode(" or ", $subsqla);
         $sql = "SELECT DISTINCT $subtype $sqlparams
 					FROM redcap_metadata 
-					WHERE project_id = ? AND ($subsql)";
-
-        if($type == "variable"){
-            $sql .= " AND element_type IN ('select','radio','checkbox','yesno','truefalse')";
-        }
-        $sql .= " ORDER BY form_name";
+					WHERE project_id = ? AND ($subsql) 
+					ORDER BY form_name";
         $q = $module->query($sql, $subvalue);
-
         while($row = $q->fetch_assoc()){
             if($option == "new_var"){
                 $users[$key] = array('value' => $row[$subtype], 'label' => '', 'info' => '', 'group' => '');
-            }else {
+            }else if($type == "instrument" || ($type == "variable" && $row["field_name"] != $row['form_name']."_complete" && $row["field_name"] != "record_id")){
                 // Trim all, just in case
                 $label = trim(strtolower($row[$subtype]));
                 $info = "";

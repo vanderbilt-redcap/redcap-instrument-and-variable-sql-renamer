@@ -23,7 +23,6 @@ class REDCapInstrumentAndVariableSQLRenamer extends AbstractExternalModule
         $sql = "SELECT form_name,field_name,element_label
 					FROM redcap_metadata
 					WHERE project_id = ?
-					 AND element_type IN ('select','radio','checkbox','yesno','truefalse')
 					ORDER BY form_name";
         $result = $this->query($sql, [$pid]);
         $list_html = "";
@@ -33,7 +32,9 @@ class REDCapInstrumentAndVariableSQLRenamer extends AbstractExternalModule
                 $aux = $row['form_name'];
                 $list_html .= "<div class='group-header'>" . \REDCap::getInstrumentNames($row['form_name']) . "</div>";
             }
-            $list_html.= "<div><a tabindex='0' role='button' class='info-toggle' data-html='true' data-container='body' data-toggle='tooltip' data-trigger='hover' data-placement='right' style='outline: none;' title='".htmlspecialchars($row['element_label'])."'><i class='fas fa-info-circle fa-fw' style='color:#0d6efd' aria-hidden='true'></i></a> <a onclick='addDataToInput(\"" .$row['field_name']. "\")'>".$row['field_name']."</a></div>";
+            if($row['field_name'] != $row['form_name']."_complete" && $row['field_name'] != "record_id") {
+                $list_html .= "<div><a tabindex='0' role='button' class='info-toggle' data-html='true' data-container='body' data-toggle='tooltip' data-trigger='hover' data-placement='right' style='outline: none;' title='" . htmlspecialchars($row['element_label']) . "'><i class='fas fa-info-circle fa-fw' style='color:#0d6efd' aria-hidden='true'></i></a> <a onclick='addDataToInput(\"" . $row['field_name'] . "\")'>" . $row['field_name'] . "</a></div>";
+            }
         }
         return $list_html;
     }

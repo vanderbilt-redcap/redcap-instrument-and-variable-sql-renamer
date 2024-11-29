@@ -2,6 +2,10 @@
 namespace VUMC\REDCapInstrumentAndVariableSQLRenamer;
 
 $pid = $_GET['pid'];
+if(!array_key_exists("U",$_REQUEST) && $_REQUEST['message'] != "U") {
+    $_SESSION['message'] = "";
+    $_SESSION['message_type'] = "";
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -18,15 +22,15 @@ $pid = $_GET['pid'];
     <script>
         $(document).ready(function () {
             $(function () {
-                $('[data-toggle="tooltip"]').tooltip()
+                $('[data-toggle="tooltip"]').tooltip();
             });
 
             $('.autocomplete-input').keyup(function(){
                 let term = $(this).val();
-                getAutocompleteData(term,"old_var");
                 if(term === ""){
                     $("#new_name_input").hide();
                 }
+                getAutocompleteData(term,"old_var");
             });
 
             $('[name=data_type]').change(function() {
@@ -82,8 +86,7 @@ $pid = $_GET['pid'];
                         new_var: new_var
                     }
                 }).done(function(response) {
-                    $("#"+response.status).html(response.message)
-                    $("#"+response.status).show();
+                    window.location = getMessageLetterUrl(window.location.href, "U");
                 });
                 return false;
             });
@@ -109,6 +112,7 @@ $pid = $_GET['pid'];
             let pid = "<?=$pid?>";
             let type = $('input[name="data_type"]:checked').attr('id');
             let new_var_found = false;
+            let old_var_found = false;
 
             $("#success_message").hide();
             $("#warning_message").hide();
@@ -138,6 +142,7 @@ $pid = $_GET['pid'];
                 let aux = '';
                 $.each(response, function(key, data) {
                     if(option == "old_var") {
+                        old_var_found = true;
                         if (type == "variable" && aux != data.group) {
                             aux = data.group;
                             lists += "<div class='group-header'>" + data.group + "</div>";
@@ -154,20 +159,37 @@ $pid = $_GET['pid'];
                         $("#new-name-confirm-btn").prop("disabled",true);
                     }
                 });
-                if(option == "old_var") {
+                if(option == "old_var" && old_var_found) {
                     $("#new_name_input").show();
                     $(".autocomplete-search").html(lists);
+                }else if(option == "old_var" && !old_var_found){
+                    $(".autocomplete-items").hide();
                 }
             });
             if(!new_var_found){
                 $(".new-name-validation-input").removeClass('danger-input');
             }
         }
+
+        function getMessageLetterUrl(url, letter){
+            console.log(url)
+            if(url.match(/(&message=)([A-Z]{1})/)){
+                url = url.replace( /(&message=)([A-Z]{1})/, "&message="+letter );
+            }else{
+                url = url + "&message="+letter;
+            }
+            return url;
+        }
     </script>
 </head>
 <body>
-    <div class="alert alert-success col-md-12" style="display:none;margin-top: 20px" id="success_message"></div>
-    <div class="alert alert-danger col-md-12" style="display:none;margin-top: 20px" id="warning_message"></div>
+<?php if($_SESSION['message_type'] !== "" && $_SESSION['message'] !== ""){ ?>
+    <?php if($_SESSION['message_type'] == "success"){ ?>
+        <div class="alert alert-success col-md-12" style="margin-top: 20px" id="success_message"><?=$_SESSION['message']?></div>
+    <?php }else{ ?>
+        <div class="alert alert-danger col-md-12" style="margin-top: 20px" id="warning_message"><?=$_SESSION['message']?></div>
+    <?php }?>
+<?php } ?>
     <div class="title" style="padding-top:15px">
         <div>
             Select the type of data you want to rename.
