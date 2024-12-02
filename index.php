@@ -111,7 +111,9 @@ if(!array_key_exists("U",$_REQUEST) && $_REQUEST['message'] != "U") {
                     new_var: new_var
                 },
                 error: function (xhr, status, error) {
-                    alert(xhr.responseText);
+                    // window.location = getMessageLetterUrl(window.location.href, "U")
+                    $("#dialogError").html(xhr.responseText);
+                    $("#dialogError").dialog({modal:true, width:800}).prev(".ui-dialog-titlebar").css("background","#f8d7da").css("color","#721c24");
                 },
                 success: function (result) {
                     window.location = getMessageLetterUrl(window.location.href, "U");
@@ -274,6 +276,7 @@ if(!array_key_exists("U",$_REQUEST) && $_REQUEST['message'] != "U") {
             </div>
         </form>
     </div>
+    <div id="dialogError" title="Something went wrong..." style="diplay:none;"></div>
 </body>
 </html>
 
