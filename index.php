@@ -6,7 +6,6 @@ if(!array_key_exists("U",$_REQUEST) && $_REQUEST['message'] != "U") {
     $_SESSION['message'] = "";
     $_SESSION['message_type'] = "";
 }
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -56,6 +55,12 @@ if(!array_key_exists("U",$_REQUEST) && $_REQUEST['message'] != "U") {
                 }
             });
 
+            $('#btnConfirm').on( "click", function(e) {
+                let old_var = $('#input-data-old').val();
+                let new_var = $('#input-data-new').val();
+                saveData("<?=$pid?>", "instrument", old_var, new_var);
+            });
+
             $('input, button').on( "click", function(e) {
                 $(".autocomplete-start").hide();
                 // $(e.target).hasClass('autocomplete-input')
@@ -75,24 +80,39 @@ if(!array_key_exists("U",$_REQUEST) && $_REQUEST['message'] != "U") {
                 let type = $('input[name="data_type"]:checked').attr('id');
                 let old_var = $('#input-data-old').val();
                 let new_var = $('#input-data-new').val();
-
-                $.ajax({
-                    method: "POST",
-                    url: <?=json_encode($module->getUrl('saveData.php'))?>,
-                    dataType: "json",
-                    data: {
-                        pid: pid,
-                        type: type,
-                        old_var: old_var,
-                        new_var: new_var
+                if(type == "instrument"){
+                    $("#confirmationForm").dialog({
+                        width: 700,
+                        modal: true,
+                        enableRemoteModule: true
+                    }).prev(".ui-dialog-titlebar").css("background", "#fff3cd").css("color", "#856404");
+                }else{
+                    if(/\s/g.test(new_var)){
+                        $("#warning-new-name-white-spaces").show();
+                        $(".new-name-validation-input").addClass('danger-input');
+                        $("#new-name-confirm-btn").prop("disabled",true);
                     }
-                }).done(function(response) {
-                    window.location = getMessageLetterUrl(window.location.href, "U");
-                });
+                    saveData(pid, type, old_var, new_var);
+                }
                 return false;
             });
         });
 
+        function saveData(pid, type, old_var, new_var){
+            $.ajax({
+                method: "POST",
+                url: <?=json_encode($module->getUrl('saveData.php'))?>,
+                dataType: "json",
+                data: {
+                    pid: pid,
+                    type: type,
+                    old_var: old_var,
+                    new_var: new_var
+                }
+            }).done(function(response) {
+                window.location = getMessageLetterUrl(window.location.href, "U");
+            });
+        }
         function showData(id){
             $('[id^="select-"]').hide();
             $("#select-"+id).show();
@@ -124,6 +144,7 @@ if(!array_key_exists("U",$_REQUEST) && $_REQUEST['message'] != "U") {
                 $("#new-name-confirm-btn").prop("disabled",false);
             }
             $("#warning-new-name-exists").hide();
+            $("#warning-new-name-white-spaces").hide()
 
             $.ajax({
                 method: "POST",
@@ -173,7 +194,6 @@ if(!array_key_exists("U",$_REQUEST) && $_REQUEST['message'] != "U") {
         }
 
         function getMessageLetterUrl(url, letter){
-            console.log(url)
             if(url.match(/(&message=)([A-Z]{1})/)){
                 url = url.replace( /(&message=)([A-Z]{1})/, "&message="+letter );
             }else{
@@ -219,7 +239,18 @@ if(!array_key_exists("U",$_REQUEST) && $_REQUEST['message'] != "U") {
         <form method="POST" action="" id="save_data" style="display: inline">
             <button type="submit" class="btn btn-primary btn-xs" disabled id="new-name-confirm-btn">Confirm</button>
         </form>
-        <div id="warning-new-name-exists" style="display:none;">*This Variable/Instrument already exists. Please change the name for a different one.</div>
+        <div id="warning-new-name-exists" class="warning-message" style="display:none;">*This Variable/Instrument already exists. Please change the name for a different one.</div>
+        <div id="warning-new-name-white-spaces" class="warning-message" style="display:none;">*Variable names cannot have white spaces. Please remove any spaces.</div>
+    </div>
+    <div id="confirmationForm" title="WARNING!" style="display:none;">
+        <form method="POST" action="" id="data_confirmation">
+            <div class="modal-body">
+                <p>Are you sure you want to modify the form name? This will modify all variables associated with it and move them to the new instrument.</p>
+            </div>
+            <div class="modal-footer" style="padding-top: 30px;">
+               <a class="btn btn-success" id='btnConfirm' name="btnConfirm" style="color: #fff;">Continue</a>
+            </div>
+        </form>
     </div>
 </body>
 </html>
