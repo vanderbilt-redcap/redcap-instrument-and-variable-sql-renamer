@@ -91,8 +91,9 @@ if(!array_key_exists("U",$_REQUEST) && $_REQUEST['message'] != "U") {
                         $("#warning-new-name-white-spaces").show();
                         $(".new-name-validation-input").addClass('danger-input');
                         $("#new-name-confirm-btn").prop("disabled",true);
+                    }else{
+                        saveData(pid, type, old_var, new_var);
                     }
-                    saveData(pid, type, old_var, new_var);
                 }
                 return false;
             });
