@@ -1,10 +1,10 @@
 <?php
 namespace VUMC\REDCapInstrumentAndVariableSQLRenamer;
 
-$pid = $_REQUEST['pid'];
-$type = $_REQUEST['type'];
-$new_var = $_REQUEST['new_var'];
-$old_var = $_REQUEST['old_var'];
+$pid = (int)$_REQUEST['pid'];
+$type = htmlentities($_REQUEST['type'], ENT_QUOTES) ?? null;
+$new_var = htmlentities($_REQUEST['new_var'], ENT_QUOTES) ?? null;
+$old_var = htmlentities($_REQUEST['old_var'], ENT_QUOTES) ?? null;
 $old_var_data = ($type == "instrument") ? $old_var."_complete":$old_var;
 if($type == "instrument"){
     $form_menu_description_new = $new_var;

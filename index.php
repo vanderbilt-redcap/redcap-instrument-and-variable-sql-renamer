@@ -109,9 +109,13 @@ if(!array_key_exists("U",$_REQUEST) && $_REQUEST['message'] != "U") {
                     type: type,
                     old_var: old_var,
                     new_var: new_var
+                },
+                error: function (xhr, status, error) {
+                    alert(xhr.responseText);
+                },
+                success: function (result) {
+                    window.location = getMessageLetterUrl(window.location.href, "U");
                 }
-            }).done(function(response) {
-                window.location = getMessageLetterUrl(window.location.href, "U");
             });
         }
         function showData(id){
