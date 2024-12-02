@@ -111,7 +111,6 @@ if(!array_key_exists("U",$_REQUEST) && $_REQUEST['message'] != "U") {
                     new_var: new_var
                 },
                 error: function (xhr, status, error) {
-                    // window.location = getMessageLetterUrl(window.location.href, "U")
                     $("#dialogError").html(xhr.responseText);
                     $("#dialogError").dialog({modal:true, width:800}).prev(".ui-dialog-titlebar").css("background","#f8d7da").css("color","#721c24");
                 },
@@ -162,37 +161,42 @@ if(!array_key_exists("U",$_REQUEST) && $_REQUEST['message'] != "U") {
                     type: type,
                     option: option,
                     pid: pid
-                }
-            }).done(function(response) {
-                if(option == "old_var") {
-                    $(".autocomplete-search").show();
-                }
-                let lists = '';
-                let aux = '';
-                $.each(response, function(key, data) {
-                    if(option == "old_var") {
-                        old_var_found = true;
-                        if (type == "variable" && aux != data.group) {
-                            aux = data.group;
-                            lists += "<div class='group-header'>" + data.group + "</div>";
-                        }
-                        lists += "<div style='display: block'>";
-                        if (type == "variable") {
-                            lists += "<a tabindex='0' role='button' class='info-toggle' data-html='true' data-container='body' data-toggle='tooltip' data-trigger='hover' data-placement='right' style='outline: none;' title='" + data.info + "'><i class='fas fa-info-circle fa-fw' style='color:#0d6efd' aria-hidden='true'></i></a> ";
-                        }
-                        lists += "<a onclick='addDataToInput(\"" + data.value + "\")'>" + data.label + "</a></div>";
-                    }else if(option == "new_var"){
-                        new_var_found = true;
-                        $("#warning-new-name-exists").show();
-                        $(".new-name-validation-input").addClass('danger-input');
-                        $("#new-name-confirm-btn").prop("disabled",true);
+                },
+                error: function (xhr, status, error) {
+                    $("#dialogError").html(xhr.responseText);
+                    $("#dialogError").dialog({modal:true, width:800}).prev(".ui-dialog-titlebar").css("background","#f8d7da").css("color","#721c24");
+                },
+                success: function (response) {
+                    if (option == "old_var") {
+                        $(".autocomplete-search").show();
                     }
-                });
-                if(option == "old_var" && old_var_found) {
-                    $("#new_name_input").show();
-                    $(".autocomplete-search").html(lists);
-                }else if(option == "old_var" && !old_var_found){
-                    $(".autocomplete-items").hide();
+                    let lists = '';
+                    let aux = '';
+                    $.each(response, function (key, data) {
+                        if (option == "old_var") {
+                            old_var_found = true;
+                            if (type == "variable" && aux != data.group) {
+                                aux = data.group;
+                                lists += "<div class='group-header'>" + data.group + "</div>";
+                            }
+                            lists += "<div style='display: block'>";
+                            if (type == "variable") {
+                                lists += "<a tabindex='0' role='button' class='info-toggle' data-html='true' data-container='body' data-toggle='tooltip' data-trigger='hover' data-placement='right' style='outline: none;' title='" + data.info + "'><i class='fas fa-info-circle fa-fw' style='color:#0d6efd' aria-hidden='true'></i></a> ";
+                            }
+                            lists += "<a onclick='addDataToInput(\"" + data.value + "\")'>" + data.label + "</a></div>";
+                        } else if (option == "new_var") {
+                            new_var_found = true;
+                            $("#warning-new-name-exists").show();
+                            $(".new-name-validation-input").addClass('danger-input');
+                            $("#new-name-confirm-btn").prop("disabled", true);
+                        }
+                    });
+                    if (option == "old_var" && old_var_found) {
+                        $("#new_name_input").show();
+                        $(".autocomplete-search").html(lists);
+                    } else if (option == "old_var" && !old_var_found) {
+                        $(".autocomplete-items").hide();
+                    }
                 }
             });
             if(!new_var_found){
