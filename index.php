@@ -220,7 +220,7 @@ if(!array_key_exists("U",$_REQUEST) && $_REQUEST['message'] != "U") {
 <?php } ?>
     <div class="title" style="padding-top:15px">
         <div class="alert alert-info" style="margin-bottom: 25px;width: 98%;">
-            <div>This External Module is designed to allow the user to rename Variables and Instruments.</div>
+            <div>Module that allows a superuser to change an Instrument or Variable name preserving all information previously associated with it.</div>
             <div>Changing a Variable/Instrument name will modify all data and metadata associated to the old name, includding the branching logic.</div>
             <br>
             <div><em>*Other features such as alerts, locking, field comments, etc. will not be modified.</em></div>

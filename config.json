@@ -26,7 +26,7 @@
 
   "no-auth-pages":[],
 
-  "description": "Module that allows the user to change an Instrument or Variable name preserving all information previously associated with it.",
+  "description": "Module that allows a superuser to change an Instrument or Variable name preserving all information previously associated with it.",
 
   "project-settings": [
 
