@@ -9,6 +9,12 @@ use ExternalModules\ExternalModules;
 class REDCapInstrumentAndVariableSQLRenamer extends AbstractExternalModule
 {
 
+    public function redcap_module_link_check_display($project_id, $link) {
+        if($this->getUser()->isSuperUser()) {
+            return parent::redcap_module_link_check_display($project_id, $link);
+        }
+        return false;
+    }
     public function loadREDCapJS(){
         if (method_exists(get_parent_class($this), 'loadREDCapJS')) {
             parent::loadREDCapJS();
