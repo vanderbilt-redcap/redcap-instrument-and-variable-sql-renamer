@@ -128,14 +128,16 @@ class Autocomplete
         }
 
         // Sort users by score, then by username
-        $count_users = count($users);
-        if ($count_users > 0 && $option == "old_var") {
-            // Sort
-            array_multisort($userMatchScore, SORT_NUMERIC, SORT_DESC, $usernamesOnly, SORT_STRING, $users);
-            // Limit only to X users to return
-            $limit_users = 10;
-            if ($count_users > $limit_users) {
-                $users = array_slice($users, 0, $limit_users);
+        if($option == "old_var") {
+            $count_users = count($users);
+            if ($count_users > 0) {
+                // Sort
+                array_multisort($userMatchScore, SORT_NUMERIC, SORT_DESC, $usernamesOnly, SORT_STRING, $users);
+                // Limit only to X users to return
+                $limit_users = 10;
+                if ($count_users > $limit_users) {
+                    $users = array_slice($users, 0, $limit_users);
+                }
             }
         }
         return json_encode($users);
