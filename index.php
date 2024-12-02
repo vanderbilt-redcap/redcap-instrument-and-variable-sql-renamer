@@ -212,6 +212,23 @@ if(!array_key_exists("U",$_REQUEST) && $_REQUEST['message'] != "U") {
     <?php }?>
 <?php } ?>
     <div class="title" style="padding-top:15px">
+        <div class="alert alert-info" style="margin-bottom: 25px;width: 98%;">
+            <div>This External Module is designed to allow the user to rename Variables and Instruments.</div>
+            <div>Changing a Variable/Instrument name will modify all data and metadata associated to the old name, includding the branching logic.</div>
+            <br>
+            <div><em>*Other features such as alerts, locking, field comments, etc. will not be modified.</em></div>
+            <div><em>*Only super users have permissions to use this tool.</em></div>
+            <div><br><br>STEPS:</div>
+            <ol>
+            <li>Select which type of data you want to modufy (variable or instrument).</li>
+            <li>Select the name. You can use the drop down or type and find one.</li>
+            <li>A new input will appear. Add the new name.</li>
+                <ul>
+                    <li>For Instruments add the <strong>Form Name</strong> as it would show on the Designer.</li>
+                    <li>If a name already exists a message will show.</li>
+                </ul>
+            </ol>
+        </div>
         <div>
             Select the type of data you want to rename.
             <div style="padding-top:15px;padding-bottom: 15px;">
