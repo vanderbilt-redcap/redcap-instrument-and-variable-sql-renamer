@@ -38,7 +38,7 @@ class REDCapInstrumentAndVariableSQLRenamer extends AbstractExternalModule
         $result = $this->query($sql, [$pid]);
         $list_html = "";
         $aux = "";
-        while ($row = $result->fetch_assoc()) {
+        while ($row = $this->escape($result->fetch_assoc())) {
             if ($aux != $row['form_name']) {
                 $aux = $row['form_name'];
                 $list_html .= "<div class='group-header'>" . REDCap::getInstrumentNames($row['form_name']) . "</div>";
@@ -60,7 +60,7 @@ class REDCapInstrumentAndVariableSQLRenamer extends AbstractExternalModule
 					ORDER BY field_order";
         $result = $this->query($sql, [$pid]);
         $list_html = "";
-        while ($row = $result->fetch_assoc()) {
+        while ($row = $this->escape($result->fetch_assoc())) {
             $list_html .= "<div><a onclick='addDataToInput(\"" . $row['form_name'] . "\")'>" . REDCap::getInstrumentNames(
                     $row['form_name']
                 ) . " <em>(" . $row['form_name'] . ")</em></a></div>";

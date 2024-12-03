@@ -2,7 +2,7 @@
 
 namespace VUMC\REDCapInstrumentAndVariableSQLRenamer;
 
-$pid = $_GET['pid'];
+$pid = (int)$_GET['pid'];
 if (!array_key_exists("U", $_REQUEST) && $_REQUEST['message'] != "U") {
     $_SESSION['message'] = "";
     $_SESSION['message_type'] = "";
@@ -231,13 +231,13 @@ if (array_key_exists('message_type', $_SESSION) && $_SESSION['message_type'] !==
     if ($_SESSION['message_type'] == "success") { ?>
         <div class="alert alert-success col-md-12" style="margin-top: 20px"
              id="success_message"><?= $_SESSION['message'] ?></div>
-    <?php
+        <?php
     } else { ?>
         <div class="alert alert-danger col-md-12" style="margin-top: 20px"
              id="warning_message"><?= $_SESSION['message'] ?></div>
-    <?php
+        <?php
     } ?>
-<?php
+    <?php
 } ?>
 <div class="title" style="padding-top:15px">
     <div class="alert alert-info" style="margin-bottom: 25px;width: 98%;">

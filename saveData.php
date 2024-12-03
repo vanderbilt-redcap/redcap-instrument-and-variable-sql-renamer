@@ -19,18 +19,10 @@ try {
     $module->query("START TRANSACTION", []);
     #Updating: Data/Form_complete Data
     $module->query(
-        "UPDATE redcap_data SET field_name = ? WHERE project_id = ? AND field_name = ?",
+        "UPDATE " . $module->getDataTable($pid) . " SET field_name = ? WHERE project_id = ? AND field_name = ?",
         [$new_var_data, $pid, $old_var_data]
     );
-    for ($i = 2; $i < 7; $i++) {
-        $qEvent = $module->query(
-            "UPDATE redcap_data" . $i . " SET field_name = ? WHERE project_id = ? AND field_name = ?",
-            [$new_var_data, $pid, $old_var_data]
-        );
-        if (db_affected_rows() > 0) {
-            $logging_message .= "• redcap_data" . $i . ": field_name\n";
-        }
-    }
+    $logging_message .= "• " . $module->getDataTable($pid) . ": field_name\n";
     if ($type == "variable") {
         #Updating: Metadata and Branching Logic
         $q = $module->query(
