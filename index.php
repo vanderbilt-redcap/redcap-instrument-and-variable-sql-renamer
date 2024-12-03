@@ -215,7 +215,7 @@ if(!array_key_exists("U",$_REQUEST) && $_REQUEST['message'] != "U") {
     </script>
 </head>
 <body>
-<?php if($_SESSION['message_type'] !== "" && $_SESSION['message'] !== ""){ ?>
+<?php if(array_key_exists('message_type',$_SESSION) && $_SESSION['message_type'] !== "" && array_key_exists('message',$_SESSION) && $_SESSION['message'] !== ""){ ?>
     <?php if($_SESSION['message_type'] == "success"){ ?>
         <div class="alert alert-success col-md-12" style="margin-top: 20px" id="success_message"><?=$_SESSION['message']?></div>
     <?php }else{ ?>
