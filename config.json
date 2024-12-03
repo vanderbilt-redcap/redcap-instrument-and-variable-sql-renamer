@@ -1,6 +1,5 @@
 {
   "name": "REDCap Instrument and Variable SQL Renamer",
-
   "namespace": "VUMC\\REDCapInstrumentAndVariableSQLRenamer",
   "framework-version": 15,
   "authors": [
@@ -10,9 +9,7 @@
       "institution": "Vanderbilt University Medical Center"
     }
   ],
-
   "permissions": [],
-
   "links": {
     "project": [
       {
@@ -23,18 +20,12 @@
       }
     ]
   },
-
-  "no-auth-pages":[],
-
+  "no-auth-pages": [],
   "description": "Module that allows a superuser to change an Instrument or Variable name preserving all information previously associated with it.",
-
   "project-settings": [
-
   ],
-
   "crons": [
   ],
-
   "compatibility": {
     "php-version-min": "8.0.0",
     "php-version-max": "",

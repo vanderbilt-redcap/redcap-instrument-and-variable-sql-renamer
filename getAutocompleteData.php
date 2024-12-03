@@ -1,5 +1,7 @@
 <?php
+
 namespace VUMC\REDCapInstrumentAndVariableSQLRenamer;
+
 include_once(__DIR__ . "/classes/Autocomplete.php");
 
 $pid = $_REQUEST['pid'];
