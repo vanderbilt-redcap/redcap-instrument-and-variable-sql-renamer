@@ -14,7 +14,7 @@ if ($type == "instrument") {
 }
 $new_var_data = ($type == "instrument") ? $new_var . "_complete" : $new_var;
 $logging_message = "Changes made by user: " . USERID . "\nAffected tables: \n";
-$logging_title = "Changed $type <strong>$old_var</strong> to <strong>$new_var</strong>\n";
+$logging_title = "Changed $type <strong>".$old_var."</strong> to <strong>".$new_var."</strong>\n";
 try {
     $module->query("START TRANSACTION", []);
     #Updating: Data/Form_complete Data
