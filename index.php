@@ -144,6 +144,7 @@ if (!array_key_exists("U", $_REQUEST) && $_REQUEST['message'] != "U") {
             let type = $('input[name="data_type"]:checked').attr('id');
             let new_var_found = false;
             let old_var_found = false;
+            let new_var = $('#input-data-new').val();
 
             $("#success_message").hide();
             $("#warning_message").hide();
@@ -154,7 +155,8 @@ if (!array_key_exists("U", $_REQUEST) && $_REQUEST['message'] != "U") {
                 $("#new-name-confirm-btn").prop("disabled", false);
             }
             $("#warning-new-name-exists").hide();
-            $("#warning-new-name-white-spaces").hide()
+            $("#warning-new-name-white-spaces").hide();
+            $("#warning-new-name-special-chars").hide();
 
             $.ajax({
                 method: "POST",
@@ -203,6 +205,8 @@ if (!array_key_exists("U", $_REQUEST) && $_REQUEST['message'] != "U") {
                         $(".autocomplete-search").html(lists);
                     } else if (option == "old_var" && !old_var_found) {
                         $(".autocomplete-items").hide();
+                    } else if (option == "new_var" && !old_var_found && !(new_var.match(/^(?![0-9._])(?!.*[._]$)[a-zA-Z0-9_]+$/))) {
+                        $("#warning-new-name-special-chars").show();
                     }
                 }
             });
@@ -249,6 +253,7 @@ if (array_key_exists('message_type', $_SESSION) && $_SESSION['message_type'] !==
         </div>
         <br>
         <div><em>*Other features such as alerts, locking, field comments, etc. will not be modified.</em></div>
+        <div><em>*Primary Key variables cannot be renamed.</em></div>
         <div><em>*Only super users have permissions to use this tool.</em></div>
         <div><br><br>STEPS:</div>
         <ol>
@@ -301,6 +306,10 @@ if (array_key_exists('message_type', $_SESSION) && $_SESSION['message_type'] !==
     </div>
     <div id="warning-new-name-white-spaces" class="warning-message" style="display:none;">*Variable names cannot have
         white spaces. Please remove any spaces.
+    </div>
+    <div id="warning-new-name-special-chars" class="warning-message" style="display:none;">*The variable name cannot
+        contain special characters,
+        other than underscore in between, or start with numbers.
     </div>
 </div>
 <div id="confirmationForm" title="WARNING!" style="display:none;">
