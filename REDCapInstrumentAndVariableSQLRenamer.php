@@ -31,7 +31,7 @@ class REDCapInstrumentAndVariableSQLRenamer extends AbstractExternalModule
 
     public function printVariableList($pid): string
     {
-        $sql = "SELECT form_name,field_name,element_label
+        $sql = "SELECT form_name,field_name,element_label,field_order
 					FROM redcap_metadata
 					WHERE project_id = ?
 					ORDER BY form_name";
@@ -43,7 +43,7 @@ class REDCapInstrumentAndVariableSQLRenamer extends AbstractExternalModule
                 $aux = $row['form_name'];
                 $list_html .= "<div class='group-header'>" . REDCap::getInstrumentNames($row['form_name']) . "</div>";
             }
-            if ($row['field_name'] != $row['form_name'] . "_complete" && $row['field_name'] != "record_id") {
+            if ($row['field_name'] != $row['form_name'] . "_complete" && $row['field_order'] != "1") {
                 $list_html .= "<div><a tabindex='0' role='button' class='info-toggle' data-html='true' data-container='body' data-toggle='tooltip' data-trigger='hover' data-placement='right' style='outline: none;' title='" . htmlspecialchars(
                         $row['element_label']
                     ) . "'><i class='fas fa-info-circle fa-fw' style='color:#0d6efd' aria-hidden='true'></i></a> <a onclick='addDataToInput(\"" . $row['field_name'] . "\")'>" . $row['field_name'] . "</a></div>";
