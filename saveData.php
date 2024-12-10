@@ -75,6 +75,18 @@ try {
                     [$new_var, $row['event_id'], $old_var]
                 );
                 $logging_message .= "• redcap_events_forms: form_name\n";
+
+                $q2 = $module->query(
+                    "SELECT event_id, form_name, custom_repeat_form_label FROM redcap_events_repeat WHERE event_id = ? AND form_name = ?;",
+                    [$row['event_id'],$old_var]
+                );
+                while ($row2 = $q2->fetch_assoc()) {
+                    $module->query(
+                        "UPDATE redcap_events_repeat SET form_name = ? WHERE event_id = ? AND form_name = ?",
+                        [$new_var, $row2['event_id'], $old_var]
+                    );
+                    $logging_message .= "• redcap_events_repeat: form_name\n";
+                }
             }
         }
     }
