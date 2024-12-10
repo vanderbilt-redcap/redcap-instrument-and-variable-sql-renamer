@@ -2,6 +2,8 @@
 
 namespace VUMC\REDCapInstrumentAndVariableSQLRenamer;
 
+use REDCap;
+
 $pid = (int)$_REQUEST['pid'];
 $type = htmlentities($_REQUEST['type'], ENT_QUOTES) ?? null;
 $new_var = htmlentities($_REQUEST['new_var'], ENT_QUOTES) ?? null;
@@ -10,11 +12,11 @@ $old_var_data = ($type == "instrument") ? $old_var . "_complete" : $old_var;
 if ($type == "instrument") {
     $form_menu_description_new = $new_var;
     $new_var = preg_replace("/[^a-z_0-9]/", "", str_replace(" ", "_", strtolower($new_var)));
-    $form_menu_description_old = \REDCap::getInstrumentNames($old_var);
+    $form_menu_description_old = REDCap::getInstrumentNames($old_var);
 }
 $new_var_data = ($type == "instrument") ? $new_var . "_complete" : $new_var;
 $logging_message = "Changes made by user: " . USERID . "\nAffected tables: \n";
-$logging_title = "Changed $type <strong>".$old_var."</strong> to <strong>".$new_var."</strong>\n";
+$logging_title = "Changed $type <strong>" . $old_var . "</strong> to <strong>" . $new_var . "</strong>\n";
 try {
     $module->query("START TRANSACTION", []);
     #Updating: Data/Form_complete Data
@@ -78,7 +80,7 @@ try {
 
                 $q2 = $module->query(
                     "SELECT event_id, form_name, custom_repeat_form_label FROM redcap_events_repeat WHERE event_id = ? AND form_name = ?;",
-                    [$row['event_id'],$old_var]
+                    [$row['event_id'], $old_var]
                 );
                 while ($row2 = $q2->fetch_assoc()) {
                     $module->query(
@@ -91,7 +93,7 @@ try {
         }
     }
     $module->query("COMMIT", []);
-    \REDCap::logEvent($logging_title, $logging_message, null, null, null, $pid);
+    REDCap::logEvent($logging_title, $logging_message, null, null, null, $pid);
     $_SESSION['message'] = ucfirst(
             $type
         ) . " <strong>$old_var</strong> has been updated to <strong>$new_var</strong> successfully.";
