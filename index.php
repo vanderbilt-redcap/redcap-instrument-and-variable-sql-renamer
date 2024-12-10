@@ -205,7 +205,7 @@ if (!array_key_exists("U", $_REQUEST) && $_REQUEST['message'] != "U") {
                         $(".autocomplete-search").html(lists);
                     } else if (option == "old_var" && !old_var_found) {
                         $(".autocomplete-items").hide();
-                    } else if (option == "new_var" && !old_var_found && !(new_var.match(/^(?![0-9._])(?!.*[._]$)[a-zA-Z0-9_]+$/))) {
+                    } else if (option == "new_var" && !old_var_found && type == "variable" && !(new_var.match(/^(?![0-9._])(?!.*[._]$)[a-zA-Z0-9_]+$/))) {
                         $("#warning-new-name-special-chars").show();
                     }
                 }
