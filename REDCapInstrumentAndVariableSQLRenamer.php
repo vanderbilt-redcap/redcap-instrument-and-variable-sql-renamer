@@ -1,6 +1,7 @@
 <?php
 
 namespace VUMC\REDCapInstrumentAndVariableSQLRenamer;
+include_once(__DIR__ . "/classes/MessagedHandler.php");
 
 use Exception;
 use REDCap;
@@ -9,6 +10,8 @@ use ExternalModules\ExternalModules;
 
 class REDCapInstrumentAndVariableSQLRenamer extends AbstractExternalModule
 {
+
+    public $messageHandler;
 
     public function redcap_module_link_check_display($project_id, $link)
     {
@@ -54,18 +57,24 @@ class REDCapInstrumentAndVariableSQLRenamer extends AbstractExternalModule
 
     public function printInstrumentList($pid): string
     {
-        $sql = "SELECT DISTINCT form_name
+        $sql = "SELECT DISTINCT form_menu_description, form_name
 					FROM redcap_metadata
-					WHERE project_id = ?
-					ORDER BY field_order";
+					WHERE project_id = ? AND form_menu_description is not null
+					ORDER BY form_menu_description";
         $result = $this->query($sql, [$pid]);
         $list_html = "";
         while ($row = $this->escape($result->fetch_assoc())) {
-            $list_html .= "<div><a onclick='addDataToInput(\"" . $row['form_name'] . "\")'>" . REDCap::getInstrumentNames(
-                    $row['form_name']
-                ) . " <em>(" . $row['form_name'] . ")</em></a></div>";
+            $list_html .= "<div><a onclick='addDataToInput(\"" . $row['form_name'] . "\")'>" . $row['form_menu_description'] . " <em>(" . $row['form_name'] . ")</em></a></div>";
         }
         return $list_html;
+    }
+
+    public function getMessageHandler(): MessagedHandler
+    {
+        if (!$this->messageHandler) {
+            $this->messageHandler = new MessagedHandler($this);
+        }
+        return $this->messageHandler;
     }
 }
 

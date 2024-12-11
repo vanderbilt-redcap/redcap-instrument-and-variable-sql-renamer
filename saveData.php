@@ -1,6 +1,7 @@
 <?php
 
 namespace VUMC\REDCapInstrumentAndVariableSQLRenamer;
+include_once(__DIR__ . "/classes/MessagedHandler.php");
 
 use REDCap;
 
@@ -94,21 +95,22 @@ try {
     }
     $module->query("COMMIT", []);
     REDCap::logEvent($logging_title, $logging_message, null, null, null, $pid);
-    $_SESSION['message'] = ucfirst(
+    $message = ucfirst(
             $type
         ) . " <strong>$old_var</strong> has been updated to <strong>$new_var</strong> successfully.";
-    $_SESSION['message_type'] = "success";
-    $status = "success_message";
+    $module->getMessageHandler()->addMessage($message);
+    $module->getMessageHandler()->messageType('success');
+    $module->getMessageHandler()->setPrintVariable($module->printVariableList($pid));
+    $module->getMessageHandler()->setPrintInstrument($module->printInstrumentList($pid));
 } catch (Exception $e) {
     $module->query("ROLLBACK", []);
-    $_SESSION['message'] = "Something went wrong when updating the " . ucfirst(
+    $message = "Something went wrong when updating the " . ucfirst(
             $type
         ) . " <em>$old_var</em> to <strong>$new_var</strong>";
-    $_SESSION['message_type'] = "warning_message";
+    $module->getMessageHandler()->addMessage($message);
+    $module->getMessageHandler()->messageType('danger');
     throw $e;
 }
 
-echo json_encode(array(
-                     'status' => "success"
-                 ));
+echo json_encode($module->getMessageHandler());
 ?>
