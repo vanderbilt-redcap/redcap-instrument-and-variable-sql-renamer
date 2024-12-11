@@ -116,7 +116,6 @@ $pid = (int)$_GET['pid'];
                     }).prev(".ui-dialog-titlebar").css("background", "#f8d7da").css("color", "#721c24");
                 },
                 success: function (result) {
-                    // window.location = getMessageLetterUrl(window.location.href, "U");
                     $('#messageHandlerDisplay').html(result.message);
                     $('#messageHandlerDisplay').removeClass("alert-success");
                     $('#messageHandlerDisplay').removeClass("alert-danger");
