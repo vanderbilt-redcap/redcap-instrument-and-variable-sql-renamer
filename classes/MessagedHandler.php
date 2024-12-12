@@ -21,12 +21,12 @@ class MessagedHandler
         $this->module = $module;
     }
 
-    public function messageType($messageType): void
+    public function setMessageType($messageType): void
     {
         $this->messageType = $messageType;
     }
 
-    public function addMessage($message): void
+    public function setMessage($message): void
     {
         $this->message = $message;
     }
@@ -39,5 +39,15 @@ class MessagedHandler
     public function setPrintInstrument($printInstrument): void
     {
         $this->printInstrument = $printInstrument;
+    }
+
+    public function getMessageAttributes(): array
+    {
+        return [
+            'message' => $this->message,
+            "messageType" => $this->messageType,
+            "printVariable" => $this->printVariable,
+            "printInstrument" => $this->printInstrument
+        ];
     }
 }

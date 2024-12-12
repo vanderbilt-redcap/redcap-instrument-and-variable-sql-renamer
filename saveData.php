@@ -98,8 +98,8 @@ try {
     $message = ucfirst(
             $type
         ) . " <strong>$old_var</strong> has been updated to <strong>$new_var</strong> successfully.";
-    $module->getMessageHandler()->addMessage($message);
-    $module->getMessageHandler()->messageType('success');
+    $module->getMessageHandler()->setMessage($message);
+    $module->getMessageHandler()->setMessageType('success');
     $module->getMessageHandler()->setPrintVariable($module->printVariableList($pid));
     $module->getMessageHandler()->setPrintInstrument($module->printInstrumentList($pid));
 } catch (Exception $e) {
@@ -107,10 +107,10 @@ try {
     $message = "Something went wrong when updating the " . ucfirst(
             $type
         ) . " <em>$old_var</em> to <strong>$new_var</strong>";
-    $module->getMessageHandler()->addMessage($message);
-    $module->getMessageHandler()->messageType('danger');
+    $module->getMessageHandler()->setMessage($message);
+    $module->getMessageHandler()->setMessageType('danger');
     throw $e;
 }
 
-echo json_encode($module->getMessageHandler());
+echo json_encode($module->getMessageHandler()->getMessageAttributes());
 ?>

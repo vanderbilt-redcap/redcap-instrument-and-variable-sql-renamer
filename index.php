@@ -1,7 +1,6 @@
 <?php
 
 namespace VUMC\REDCapInstrumentAndVariableSQLRenamer;
-include_once(__DIR__ . "/classes/MessagedHandler.php");
 
 $pid = (int)$_GET['pid'];
 ?>
