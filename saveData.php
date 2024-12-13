@@ -1,7 +1,7 @@
 <?php
 
 namespace VUMC\REDCapInstrumentAndVariableSQLRenamer;
-include_once(__DIR__ . "/classes/MessagedHandler.php");
+include_once(__DIR__ . "/classes/MessageHandler.php");
 
 use REDCap;
 

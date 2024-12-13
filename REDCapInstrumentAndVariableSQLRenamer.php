@@ -1,7 +1,7 @@
 <?php
 
 namespace VUMC\REDCapInstrumentAndVariableSQLRenamer;
-include_once(__DIR__ . "/classes/MessagedHandler.php");
+include_once(__DIR__ . "/classes/MessageHandler.php");
 
 use Exception;
 use REDCap;
@@ -69,10 +69,10 @@ class REDCapInstrumentAndVariableSQLRenamer extends AbstractExternalModule
         return $list_html;
     }
 
-    public function getMessageHandler(): MessagedHandler
+    public function getMessageHandler(): MessageHandler
     {
         if (!$this->messageHandler) {
-            $this->messageHandler = new MessagedHandler($this);
+            $this->messageHandler = new MessageHandler($this);
         }
         return $this->messageHandler;
     }

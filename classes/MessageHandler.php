@@ -4,7 +4,7 @@ namespace VUMC\REDCapInstrumentAndVariableSQLRenamer;
 
 use REDCap;
 
-class MessagedHandler
+class MessageHandler
 {
     private $module;
 
