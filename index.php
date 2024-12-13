@@ -3,10 +3,6 @@
 namespace VUMC\REDCapInstrumentAndVariableSQLRenamer;
 
 $pid = (int)$_GET['pid'];
-if (!array_key_exists("U", $_REQUEST) && $_REQUEST['message'] != "U") {
-    $_SESSION['message'] = "";
-    $_SESSION['message_type'] = "";
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -28,6 +24,7 @@ if (!array_key_exists("U", $_REQUEST) && $_REQUEST['message'] != "U") {
             });
 
             $('.autocomplete-input').keyup(function () {
+                $('#messageHandlerDisplay').hide();
                 let term = $(this).val();
                 if (term === "") {
                     $("#new_name_input").hide();
@@ -118,7 +115,19 @@ if (!array_key_exists("U", $_REQUEST) && $_REQUEST['message'] != "U") {
                     }).prev(".ui-dialog-titlebar").css("background", "#f8d7da").css("color", "#721c24");
                 },
                 success: function (result) {
-                    window.location = getMessageLetterUrl(window.location.href, "U");
+                    $('#messageHandlerDisplay').html(result.message);
+                    $('#messageHandlerDisplay').removeClass("alert-success");
+                    $('#messageHandlerDisplay').removeClass("alert-danger");
+                    $('#messageHandlerDisplay').addClass("alert-" + result.messageType);
+                    $('#messageHandlerDisplay').show();
+                    if (type == "instrument") {
+                    $('#confirmationForm').dialog('close');
+                    }
+                    $('#input-data-new').val('');
+                    $('#new_name_input').hide();
+                    $('#select-variable').html(result.printVariable);
+                    $('#select-instrument').html(result.printInstrument);
+
                 }
             });
         }
@@ -226,23 +235,9 @@ if (!array_key_exists("U", $_REQUEST) && $_REQUEST['message'] != "U") {
     </script>
 </head>
 <body>
-<?php
-if (array_key_exists('message_type', $_SESSION) && $_SESSION['message_type'] !== "" && array_key_exists(
-        'message',
-        $_SESSION
-    ) && $_SESSION['message'] !== "") { ?>
-    <?php
-    if ($_SESSION['message_type'] == "success") { ?>
-        <div class="alert alert-success col-md-12" style="margin-top: 20px"
-             id="success_message"><?= $_SESSION['message'] ?></div>
-        <?php
-    } else { ?>
-        <div class="alert alert-danger col-md-12" style="margin-top: 20px"
-             id="warning_message"><?= $_SESSION['message'] ?></div>
-        <?php
-    } ?>
-    <?php
-} ?>
+
+<div class="alert col-md-12" style="display:none;margin-top: 20px" id="messageHandlerDisplay"></div>
+
 <div class="title" style="padding-top:15px">
     <div class="alert alert-info" style="margin-bottom: 25px;width: 98%;">
         <div>Module that allows a superuser to change an Instrument or Variable name preserving all information
