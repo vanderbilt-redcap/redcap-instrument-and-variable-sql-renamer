@@ -6,7 +6,38 @@ use REDCap;
 
 class Autocomplete
 {
-    public static function replaceTerm($match)
+
+    public $results = [];
+
+    public static function getAutocompleteData($module, $pid, $getTerm, $type, $option)
+    {
+        $search_term = self::sanatizingSearchTerms($getTerm, $type, $option);
+
+        $sqlData = self::executeSQLSearch($module, $pid, $type, $option, $search_term);
+        $q = $sqlData[0];
+        $subtype = $sqlData[1];
+        $this_term = $sqlData[2];
+        $search_terms = $sqlData[3];
+
+        return self::processResults($q, $option, $type, $this_term, $search_terms, $subtype);
+    }
+
+    private function addResults($value, $label, $info, $group): void
+    {
+       $this->results[] = [
+            'value' => $value,
+            "label" => $label,
+            "info" => $info,
+            "group" => $group
+        ];
+    }
+
+    private function getResults(): array
+    {
+        return $this->results;
+    }
+
+    private static function replaceTerm($match)
     {
         $applyTag = function ($found) {
             // the sorrounding tag can be customized here
@@ -20,7 +51,7 @@ class Autocomplete
         return $applyTag($found);
     }
 
-    public static function getTermRegExp($terms)
+    private static function getTermRegExp($terms)
     {
         $termsReducer = function ($carry, $term) {
             $quotedTerm = preg_quote($term); // we do not want to use regexps provided by the user interface
@@ -33,14 +64,14 @@ class Autocomplete
         return $regExp;
     }
 
-    public static function searchTerms($terms, $text)
+    private static function searchTerms($terms, $text)
     {
         $regExp = self::getTermRegExp($terms);
         $result = preg_replace_callback($regExp, 'self::replaceTerm', $text);
         return $result;
     }
 
-    public static function sanatizingSearchTerms($getTerm, $type, $option)
+    private static function sanatizingSearchTerms($getTerm, $type, $option)
     {
         // Santize search term passed in query string
         $search_term = trim(html_entity_decode(urldecode($getTerm), ENT_QUOTES));
@@ -60,7 +91,7 @@ class Autocomplete
         return $search_term;
     }
 
-    public static function executeSQLSearch($module, $pid, $type, $option, $search_term)
+    private static function executeSQLSearch($module, $pid, $type, $option, $search_term)
     {
         // Set the subquery for all search terms used
         $subsqla = [];
@@ -81,7 +112,7 @@ class Autocomplete
             if (strpos($search_term, " ") !== false) {
                 $search_terms = explode(" ", $search_term);
             } else {
-                $search_terms = array($search_term);
+                $search_terms = [$search_term];
             }
             $search_terms = array_unique($search_terms);
 
@@ -106,11 +137,13 @@ class Autocomplete
         return [$q, $subtype, $this_term, $search_terms];
     }
 
-    public static function processResults($q, $option, $type, $this_term, $search_terms, $subtype)
+    private static function processResults($q, $option, $type, $this_term, $search_terms, $subtype)
     {
+        $key = 0;
+        $autocomplete = new Autocomplete();
         while ($row = $q->fetch_assoc()) {
             if ($option == "new_var") {
-                $results[$key] = array('value' => $row[$subtype], 'label' => '', 'info' => '', 'group' => '');
+                $autocomplete->addResults($row[$subtype], '', '', '');
             } else {
                 if ($type == "instrument" || ($type == "variable" && $row["field_name"] != $row['form_name'] . "_complete" && $row['field_order'] != "1")) {
                     // Trim all, just in case
@@ -124,7 +157,7 @@ class Autocomplete
                         $label = REDCap::getInstrumentNames(trim(strtolower($row[$subtype])));
                     }
                     // Calculate search match score.
-                    $userMatchScore[$key] = 0;
+                    $resultsMatchScore[$key] = 0;
 
                     // Loop through each search term for this person
 
@@ -132,23 +165,16 @@ class Autocomplete
                     $this_term_len = strlen($this_term);
                     // For partial matches, give +1 point for each letter
                     if (strpos($row[$subtype], $this_term) !== false) {
-                        $userMatchScore[$key] = $userMatchScore[$key] + $this_term_len;
+                        $resultsMatchScore[$key] = $resultsMatchScore[$key] + $this_term_len;
                     }
 
                     // Wrap any occurrence of search term in label with a tag
                     $label = self::searchTerms($search_terms, $label);
 
-                    // Add to arrays
-                    $results[$key] = array(
-                        'value' => $row[$subtype],
-                        'label' => $label,
-                        'info' => $info,
-                        'group' => $group
-                    );
-                    $usernamesOnly[$key] = $row['username'];
-                    // If username, first name, or last name match EXACTLY, do a +100 on score.
+                    $autocomplete->addResults($row[$subtype], $label, $info, $group);
+                    // If all results match EXACTLY, do a +100 on score.
                     if (in_array($row[$subtype], $search_terms)) {
-                        $userMatchScore[$key] = $userMatchScore[$key] + 100;
+                        $resultsMatchScore[$key] = $resultsMatchScore[$key] + 100;
                     }
 
                     // Increment key
@@ -156,33 +182,18 @@ class Autocomplete
                 }
             }
         }
-
+        $results = $autocomplete->getResults();
         // Sort users by score, then by username
         if ($option == "old_var" && $results != null) {
-            $count_users = count($results);
-            if ($count_users > 0) {
-                // Sort
-                array_multisort($userMatchScore, SORT_NUMERIC, SORT_DESC, $usernamesOnly, SORT_STRING, $results);
-                // Limit only to X users to return
-                $limit_users = 10;
-                if ($count_users > $limit_users) {
-                    $results = array_slice($results, 0, $limit_users);
+            $count_results = count($results);
+            if ($count_results > 0) {
+                // Limit only to X results to return
+                $limit_results = 10;
+                if ($count_results > $limit_results) {
+                    $results = array_slice($results, 0, $limit_results);
                 }
             }
         }
         return json_encode($results);
-    }
-
-    public static function getAutocompleteData($module, $pid, $getTerm, $type, $option)
-    {
-        $search_term = self::sanatizingSearchTerms($getTerm, $type, $option);
-
-        $sqlData = self::executeSQLSearch($module, $pid, $type, $option, $search_term);
-        $q = $sqlData[0];
-        $subtype = $sqlData[1];
-        $this_term = $sqlData[2];
-        $search_terms = $sqlData[3];
-
-        return self::processResults($q, $option, $type, $this_term, $search_terms, $subtype);
     }
 }
