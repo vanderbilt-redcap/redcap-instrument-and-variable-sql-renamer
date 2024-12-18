@@ -9,17 +9,20 @@ class Autocomplete
 
     public $results = [];
 
-    public static function getAutocompleteData($module, $pid, $getTerm, $type, $option)
-    {
-        $search_term = self::sanatizingSearchTerms($getTerm, $type, $option);
+    private $option = '';
 
-        $sqlData = self::executeSQLSearch($module, $pid, $type, $option, $search_term);
+
+    public function getAutocompleteData($module, $pid, $getTerm, $type, $option): string
+    {
+        $search_term = $this->sanatizingSearchTerms($getTerm, $type, $option);
+
+        $sqlData = $this->executeSQLSearch($module, $pid, $type, $option, $search_term);
         $q = $sqlData[0];
         $subtype = $sqlData[1];
         $this_term = $sqlData[2];
         $search_terms = $sqlData[3];
 
-        return self::processResults($q, $option, $type, $this_term, $search_terms, $subtype);
+        return $this->processResults($q, $option, $type, $this_term, $search_terms, $subtype);
     }
 
     private function addResults($value, $label, $info, $group): void
@@ -34,10 +37,68 @@ class Autocomplete
 
     private function getResults(): array
     {
+        // Sort users by score, then by username
+        if ($this->option == "old_var" && $this->results != null) {
+            $count_results = count($this->results);
+            if ($count_results > 0) {
+                // Limit only to X results to return
+                $limit_results = 10;
+                if ($count_results > $limit_results) {
+                    $this->results = array_slice($this->results, 0, $limit_results);
+                }
+            }
+        }
+
         return $this->results;
     }
 
-    private static function replaceTerm($match)
+    private function setOption($option): void
+    {
+        $this->option = $option;
+    }
+
+    private function getOption(): string
+    {
+        return $this->option;
+    }
+
+    private function processLabel($type, $value, $search_terms): string
+    {
+        // Trim all, just in case
+        $label = trim(strtolower($value));
+
+        if ($type == "instrument") {
+            $label = REDCap::getInstrumentNames(trim(strtolower($value)));
+        }
+
+        // Wrap any occurrence of search term in label with a tag
+        $label = $this->searchTerms($search_terms, $label);
+
+        return $label;
+    }
+
+    private function calculateMatchScore($key, $this_term, $value, $search_terms): array
+    {
+        // Calculate search match score.
+        $resultsMatchScore[$key] = 0;
+
+        // Loop through each search term for this person
+
+        // Set length of this search string
+        $this_term_len = strlen($this_term);
+        // For partial matches, give +1 point for each letter
+        if (strpos($value, $this_term) !== false) {
+            $resultsMatchScore[$key] = $resultsMatchScore[$key] + $this_term_len;
+        }
+
+        // If all results match EXACTLY, do a +100 on score.
+        if (in_array($value, $search_terms)) {
+            $resultsMatchScore[$key] = $resultsMatchScore[$key] + 100;
+        }
+        return $resultsMatchScore;
+    }
+
+    private function replaceTerm($match)
     {
         $applyTag = function ($found) {
             // the sorrounding tag can be customized here
@@ -51,7 +112,7 @@ class Autocomplete
         return $applyTag($found);
     }
 
-    private static function getTermRegExp($terms)
+    private function getTermRegExp($terms)
     {
         $termsReducer = function ($carry, $term) {
             $quotedTerm = preg_quote($term); // we do not want to use regexps provided by the user interface
@@ -64,14 +125,14 @@ class Autocomplete
         return $regExp;
     }
 
-    private static function searchTerms($terms, $text)
+    private function searchTerms($terms, $text)
     {
-        $regExp = self::getTermRegExp($terms);
+        $regExp = $this->getTermRegExp($terms);
         $result = preg_replace_callback($regExp, 'self::replaceTerm', $text);
         return $result;
     }
 
-    private static function sanatizingSearchTerms($getTerm, $type, $option)
+    private function sanatizingSearchTerms($getTerm, $type, $option)
     {
         // Santize search term passed in query string
         $search_term = trim(html_entity_decode(urldecode($getTerm), ENT_QUOTES));
@@ -91,7 +152,7 @@ class Autocomplete
         return $search_term;
     }
 
-    private static function executeSQLSearch($module, $pid, $type, $option, $search_term)
+    private function executeSQLSearch($module, $pid, $type, $option, $search_term)
     {
         // Set the subquery for all search terms used
         $subsqla = [];
@@ -137,63 +198,33 @@ class Autocomplete
         return [$q, $subtype, $this_term, $search_terms];
     }
 
-    private static function processResults($q, $option, $type, $this_term, $search_terms, $subtype)
+    private function processResults($q, $option, $type, $this_term, $search_terms, $subtype)
     {
         $key = 0;
-        $autocomplete = new Autocomplete();
         while ($row = $q->fetch_assoc()) {
             if ($option == "new_var") {
-                $autocomplete->addResults($row[$subtype], '', '', '');
-            } else {
-                if ($type == "instrument" || ($type == "variable" && $row["field_name"] != $row['form_name'] . "_complete" && $row['field_order'] != "1")) {
-                    // Trim all, just in case
-                    $label = trim(strtolower($row[$subtype]));
-                    $info = "";
-                    $group = "";
-                    if ($type == "variable") {
-                        $info = htmlspecialchars(trim($row['element_label']));
-                        $group = REDCap::getInstrumentNames(trim(strtolower($row['form_name'])));
-                    } else {
-                        $label = REDCap::getInstrumentNames(trim(strtolower($row[$subtype])));
-                    }
-                    // Calculate search match score.
-                    $resultsMatchScore[$key] = 0;
+                $this->addResults($row[$subtype], '', '', '');
+            } elseif ($type == "instrument" || ($type == "variable" && $row["field_name"] != $row['form_name'] . "_complete" && $row['field_order'] != "1")) {
 
-                    // Loop through each search term for this person
+                $label = $this->processLabel($type, $row[$subtype], $search_terms);
 
-                    // Set length of this search string
-                    $this_term_len = strlen($this_term);
-                    // For partial matches, give +1 point for each letter
-                    if (strpos($row[$subtype], $this_term) !== false) {
-                        $resultsMatchScore[$key] = $resultsMatchScore[$key] + $this_term_len;
-                    }
-
-                    // Wrap any occurrence of search term in label with a tag
-                    $label = self::searchTerms($search_terms, $label);
-
-                    $autocomplete->addResults($row[$subtype], $label, $info, $group);
-                    // If all results match EXACTLY, do a +100 on score.
-                    if (in_array($row[$subtype], $search_terms)) {
-                        $resultsMatchScore[$key] = $resultsMatchScore[$key] + 100;
-                    }
-
-                    // Increment key
-                    $key++;
+                $info = "";
+                $group = "";
+                if ($type == "variable") {
+                    $info = htmlspecialchars(trim($row['element_label']));
+                    $group = REDCap::getInstrumentNames(trim(strtolower($row['form_name'])));
                 }
+
+                $this->addResults($row[$subtype], $label, $info, $group);
+
+                $resultsMatchScore = $this->calculateMatchScore($key, $this_term, $row[$subtype], $search_terms);
+
+                // Increment key
+                $key++;
             }
         }
-        $results = $autocomplete->getResults();
-        // Sort users by score, then by username
-        if ($option == "old_var" && $results != null) {
-            $count_results = count($results);
-            if ($count_results > 0) {
-                // Limit only to X results to return
-                $limit_results = 10;
-                if ($count_results > $limit_results) {
-                    $results = array_slice($results, 0, $limit_results);
-                }
-            }
-        }
-        return json_encode($results);
+        $this->setOption($option);
+
+        return json_encode($this->getResults());
     }
 }
