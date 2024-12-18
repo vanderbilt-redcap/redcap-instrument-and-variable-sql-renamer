@@ -178,7 +178,7 @@ $pid = (int)$_GET['pid'];
                     pid: pid
                 },
                 error: function (xhr, status, error) {
-                    $("#dialogError").html(xhr.responseText);
+                    $("#dialogError").html(error+"<br>"+xhr.responseText);
                     $("#dialogError").dialog({
                         modal: true,
                         width: 800
