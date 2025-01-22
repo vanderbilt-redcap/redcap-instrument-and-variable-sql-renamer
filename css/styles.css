@@ -33,6 +33,10 @@
     cursor: auto;
 }
 
+.info-toggle{
+    text-decoration: none;
+}
+
 .warning-message {
     padding-top: 5px;
     color: red;

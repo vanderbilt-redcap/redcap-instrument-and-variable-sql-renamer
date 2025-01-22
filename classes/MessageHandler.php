@@ -12,9 +12,9 @@ class MessageHandler
 
     public $messageType = '';
 
-    public $printVariable = '';
+    public $variableList = '';
 
-    public $printInstrument = '';
+    public $instrumentList = '';
 
     public function __construct(REDCapInstrumentAndVariableSQLRenamer $module)
     {
@@ -31,14 +31,24 @@ class MessageHandler
         $this->message = $message;
     }
 
-    public function setPrintVariable($printVariable): void
+    public function setVariableList($variableList): void
     {
-        $this->printVariable = $printVariable;
+        $this->variableList = $variableList;
     }
 
-    public function setPrintInstrument($printInstrument): void
+    public function setInstrumentList($instrumentList): void
     {
-        $this->printInstrument = $printInstrument;
+        $this->instrumentList = $instrumentList;
+    }
+
+    public function renderVariableList(): string
+    {
+        return $this->module->getTwig()->render("_variable_list.html.twig", ["variable_list" => $this->variableList]);
+    }
+
+    public function renderInstrumentList(): string
+    {
+        return $this->module->getTwig()->render("_instrument_list.html.twig", ["instrument_list" => $this->instrumentList]);
     }
 
     public function getMessageAttributes(): array
@@ -46,8 +56,8 @@ class MessageHandler
         return [
             'message' => $this->message,
             "messageType" => $this->messageType,
-            "printVariable" => $this->printVariable,
-            "printInstrument" => $this->printInstrument
+            "variableListHtml" => $this->renderVariableList(),
+            "instrumentListHtml" => $this->renderInstrumentList()
         ];
     }
 }

@@ -1,0 +1,5 @@
+{% apply spaceless %}
+    {% for instrument in instrument_list %}
+        <div><a onclick='addDataToInput("{{ instrument.form_name }} ")'> {{ instrument.form_menu_description }} <em>({{ instrument.form_name }})</em></a></div>
+    {% endfor %}
+{% endapply %}

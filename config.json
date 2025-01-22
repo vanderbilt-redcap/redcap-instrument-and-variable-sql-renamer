@@ -1,7 +1,7 @@
 {
   "name": "REDCap Instrument and Variable SQL Renamer",
   "namespace": "VUMC\\REDCapInstrumentAndVariableSQLRenamer",
-  "framework-version": 15,
+  "framework-version": 16,
   "authors": [
     {
       "name": "Eva Bascompte Moragas",
@@ -16,6 +16,12 @@
         "name": "SQL Renamer",
         "icon": "fas fa-database",
         "url": "index.php",
+        "show-header-and-footer": true
+      },
+      {
+        "name": "Twig",
+        "icon": "fas fa-code",
+        "url": "twig.php",
         "show-header-and-footer": true
       }
     ]

@@ -1,0 +1,17 @@
+{% apply spaceless %}
+    {% set current_form_name = "" %}
+    {% for variable in variable_list %}
+        {% if current_form_name != variable.form_name %}
+            {% set current_form_name = variable.form_name %}
+            <div class='group-header'>{{ redcap_get_instrument_names(variable.form_name) }}</div>
+        {% endif %}
+        {% if variable.field_name != variable.form_name ~ "_complete" and  variable.field_order != "1" %}
+            <div>
+                <a tabindex='0' role='button' class='info-toggle' data-html='true' data-container='body' data-toggle='tooltip' data-trigger='hover' data-placement='right' style='outline: none;' title='{{ variable.element_label }}'>
+                    <i class='fas fa-info-circle fa-fw' style='color:#0d6efd' aria-hidden='true'></i>
+                </a>
+                <a onclick='addDataToInput("{{ variable.field_name }}")'>{{ variable.field_name }} </a>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endapply %}
