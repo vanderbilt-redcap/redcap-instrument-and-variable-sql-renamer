@@ -5,6 +5,8 @@ include_once(__DIR__ . "/classes/MessageHandler.php");
 
 use REDCap;
 
+$module->initialize();
+
 $pid = (int)$_REQUEST['pid'];
 $type = htmlentities($_REQUEST['type'], ENT_QUOTES) ?? null;
 $new_var = htmlentities($_REQUEST['new_var'], ENT_QUOTES) ?? null;
@@ -13,7 +15,7 @@ $old_var_data = ($type == "instrument") ? $old_var . "_complete" : $old_var;
 if ($type == "instrument") {
     $form_menu_description_new = $new_var;
     $new_var = preg_replace("/[^a-z_0-9]/", "", str_replace(" ", "_", strtolower($new_var)));
-    $form_menu_description_old = REDCap::getInstrumentNames($old_var);
+    $form_menu_description_old = \REDCap::getInstrumentNames(trim(strtolower($old_var)));
 }
 $new_var_data = ($type == "instrument") ? $new_var . "_complete" : $new_var;
 $logging_message = "Changes made by user: " . USERID . "\nAffected tables: \n";
@@ -105,8 +107,8 @@ try {
         ) . " <strong>$old_var</strong> has been updated to <strong>$new_var</strong> successfully.";
     $module->getMessageHandler()->setMessage($message);
     $module->getMessageHandler()->setMessageType('success');
-    $module->getMessageHandler()->setPrintVariable($module->printVariableList($pid));
-    $module->getMessageHandler()->setPrintInstrument($module->printInstrumentList($pid));
+    $module->getMessageHandler()->setVariableList($module->getVariableList($pid));
+    $module->getMessageHandler()->setInstrumentList($module->getInstrumentList($pid));
 } catch (Exception $e) {
     $module->query("ROLLBACK", []);
     $message = "Something went wrong when updating the " . ucfirst(

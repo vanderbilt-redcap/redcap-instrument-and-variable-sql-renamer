@@ -1,7 +1,7 @@
 {
   "name": "REDCap Instrument and Variable SQL Renamer",
   "namespace": "VUMC\\REDCapInstrumentAndVariableSQLRenamer",
-  "framework-version": 15,
+  "framework-version": 16,
   "authors": [
     {
       "name": "Eva Bascompte Moragas",
