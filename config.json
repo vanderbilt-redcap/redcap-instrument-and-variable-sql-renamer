@@ -17,12 +17,6 @@
         "icon": "fas fa-database",
         "url": "index.php",
         "show-header-and-footer": true
-      },
-      {
-        "name": "Twig",
-        "icon": "fas fa-code",
-        "url": "twig.php",
-        "show-header-and-footer": true
       }
     ]
   },
