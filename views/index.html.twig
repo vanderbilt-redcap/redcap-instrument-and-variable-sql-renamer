@@ -271,10 +271,10 @@
                                                                 src="/redcap_v14.8.2/Resources/images/arrow_state_grey_expanded.png"
                                                                 alt="Click to view choices"></button>
                 <div id="select-variable" class="autocomplete-start autocomplete-items" style="display:none">
-                    {{ include('_variable_list.html.twig', {variable_list: variable_list}) }}
+                    {{ include('_variable_list.html.twig', {variable_list: variable_list}, with_context = false) }}
                 </div>
                 <div id="select-instrument" class="autocomplete-start autocomplete-items" style="display:none">
-                    {{ include('_instrument_list.html.twig', {instrument_list: instrument_list}) }}
+                    {{ include('_instrument_list.html.twig', {instrument_list: instrument_list}, with_context = false) }}
                 </div>
                 <div class="autocomplete-search autocomplete-items" style="display:none"></div>
             </div>
