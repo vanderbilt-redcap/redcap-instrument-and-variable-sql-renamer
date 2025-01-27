@@ -41,12 +41,12 @@ class MessageHandler
         $this->instrumentList = $instrumentList;
     }
 
-    public function renderVariableList(): string
+    private function renderVariableList(): string
     {
         return $this->module->getTwig()->render("_variable_list.html.twig", ["variable_list" => $this->variableList]);
     }
 
-    public function renderInstrumentList(): string
+    private function renderInstrumentList(): string
     {
         return $this->module->getTwig()->render("_instrument_list.html.twig", ["instrument_list" => $this->instrumentList]);
     }
